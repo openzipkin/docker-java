@@ -1,0 +1,4 @@
+FROM delitescere/jdk:VERSION
+MAINTAINER OpenZipkin "http://zipkin.io/"
+
+RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include
