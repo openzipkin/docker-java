@@ -6,6 +6,8 @@
 
 set -euo pipefail
 
+set -x
+
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 version"
     echo "  version: a tag on the Docker image delitescere/jdk"
