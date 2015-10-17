@@ -15,10 +15,12 @@ version="$1"
 tag="openzipkin/jre-full:$version"
 fat_tag="${tag}-fat"
 
+docker_squash="$(which docker-squash)"
+
 sed "s/VERSION/$version/g" Dockerfile.in > Dockerfile
 docker build -t "$fat_tag" .
 rm Dockerfile
 
-docker save "$fat_tag" | sudo docker-squash -t "$tag" | docker load
+docker save "$fat_tag" | sudo "$docker_squash" -t "$tag" | docker load
 
 docker push "$tag"
