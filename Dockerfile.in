@@ -1,4 +1,11 @@
 FROM delitescere/jdk:VERSION
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
-RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include
+# Remove 40M worth of SDK things, but link back /usr/local/java/bin to help tools
+# that auto-detect JAVA_HOME.
+RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include; \
+    ln -s /usr/local/java/jre/bin /usr/local/java/bin
+
+# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
+# will throw UnknownHostException as the local hostname isn't in DNS.
+RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
