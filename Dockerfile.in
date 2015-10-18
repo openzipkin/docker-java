@@ -3,8 +3,9 @@ MAINTAINER OpenZipkin "http://zipkin.io/"
 
 # Remove 40M worth of SDK things, but link back /usr/local/java/bin to help tools
 # that auto-detect JAVA_HOME.
-RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include; \
-    ln -s /usr/local/java/jre/bin /usr/local/java/bin
+RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include
+# Having the rm and the ln in the same FS layer confuses docker squash
+RUN ln -s /usr/local/java/jre/bin /usr/local/java/bin
 
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
