@@ -10,8 +10,7 @@ before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -e abesto0+docker-zipkin-deployer@gmail.com -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
   # Download docker-squash
-  - curl -SL https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz |tar -xvz
-  - export PATH=$PATH:$PWD
+  - pip install docker-squash
 
 # Run only for tags
 # Heuristic: tags describe versions, so they'll start with a number
