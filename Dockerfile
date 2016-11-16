@@ -1,4 +1,4 @@
-FROM delitescere/jdk:VERSION
+FROM cantara/alpine-zulu-jdk8
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
 # Remove 40M worth of SDK things, but link back /usr/local/java/bin to help tools
