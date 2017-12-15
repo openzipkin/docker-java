@@ -9,7 +9,7 @@ python:
 
 before_script:
   # Log in to Docker Hub for releasing the image
-  - docker login -e abesto0+docker-zipkin-deployer@gmail.com -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
+  - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
   # Download docker-squash
   - pip install docker-squash
 
