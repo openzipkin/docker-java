@@ -11,7 +11,7 @@ before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
   # Download docker-squash
-  - pip install docker-squash docker<3
+  - pip install docker-squash 'docker<3'
 
 # Run only for tags
 # Heuristic: tags describe versions, so they'll start with a number
