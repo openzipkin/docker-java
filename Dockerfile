@@ -1,9 +1,5 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jre-alpine
 MAINTAINER OpenZipkin "http://zipkin.io/"
-
-# Remove 40M worth of SDK things, but link back /usr/local/java/bin to help tools
-# that auto-detect JAVA_HOME.
-RUN rm -rf /usr/local/java/bin /usr/local/java/lib /usr/local/java/include
 
 # Setup curl for convenience as all derivative images use it, and putting
 # it in one layer (via squash) is helpful
