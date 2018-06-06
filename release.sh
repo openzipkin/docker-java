@@ -13,12 +13,7 @@ if [[ $# -ne 1 ]]; then
 fi
 version="$1"
 tag="openzipkin/jre-full:$version"
-fat_tag="${tag}-fat"
 
-docker_squash="$(which docker-squash)"
-
-docker build -t "$fat_tag" .
-
-docker-squash -t "$tag" "$fat_tag"
+docker build --squash -t "$tag" .
 
 docker push "$tag"
