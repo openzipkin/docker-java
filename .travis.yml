@@ -3,6 +3,12 @@ sudo: required
 services:
   - docker
 
+# Update docker per https://docs.travis-ci.com/user/docker/#Installing-a-newer-Docker-version
+addons:
+  apt:
+    packages:
+      - docker-ce
+
 language: python
 python:
   - "3.4"
