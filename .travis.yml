@@ -2,9 +2,6 @@
 language: bash
 sudo: required
 
-on:
-  tags: true
-
 services:
   - docker
 
@@ -19,6 +16,12 @@ before_install:
 before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
+
+# Run only for tags as "on: tags: true" will still build master!
+# Heuristic: tags describe versions, so they'll start with a number
+branches:
+  only:
+    - /^[0-9]/
 
 script:
  - ./release.sh $TRAVIS_TAG
