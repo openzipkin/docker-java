@@ -1,29 +1,24 @@
+# update docker and enable squash similar to https://github.com/Dalee/build.docker/blob/master/.travis.yml
+language: bash
 sudo: required
+
+on:
+  tags: true
 
 services:
   - docker
 
-# Update docker per https://docs.travis-ci.com/user/docker/#Installing-a-newer-Docker-version
-addons:
-  apt:
-    packages:
-      - docker-ce
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - echo 'DOCKER_OPTS="--experimental=true"' | sudo tee /etc/default/docker
+  - sudo service docker restart
 
-language: python
-python:
-  - "3.4"
+# our specific build below:
 
 before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
-  # Download docker-squash
-  - pip install docker-squash
-
-# Run only for tags
-# Heuristic: tags describe versions, so they'll start with a number
-branches:
-  only:
-    - /^[0-9]/
 
 script:
  - ./release.sh $TRAVIS_TAG
