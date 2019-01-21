@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:8u191-jre-alpine3.8
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
 # Add edge repo, needed for tools downstream like runit
