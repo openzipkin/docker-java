@@ -26,15 +26,15 @@ branches:
 script:
  - ./release.sh $TRAVIS_TAG
 
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/ead3c37d57527214e9f2
+      - https://webhooks.gitter.im/e/e57478303f87ecd7bffc
+    on_success: change
+    on_failure: always
+
 env:
   global:
     # Docker Hub credentials
     secure: O+P9Rkwsd866JucLwPt6Db8jTm4PN6SdKtP0X46Hgl2s5HZh4ude8TXkVe+hlGu7eXV2AoVG8b7FDaptzY8thtWMao2HNBcTgbUh4yhvdsN2y9+JUNVwxxgarCBoyqwKDbS0JtWfO22ms4Au+hGA1cfG5t/Qpr0eGaNxoNvsTs72CfeyDCZhzSeTbZeQDdAUqX9CCgrB6TB/3ZA3wCS7qptna0HW/+aZRSMGHQzM9oGYlSaWa7HHGMa2llsGK5lRMpPL/GNdFlZRTgqtjIvMAfZHqXPgdIOZ9clO/nntcIx1VAtExqalneXchj4GciJ3EvniPc5QX91m4S7/R3KTkk8IDjK3SpxfMo4KrOkbL93bl9Ku82LNPCmxvSPn3moznQI7AX1kIzxPapqVElEJL3pDVPre561gCb4IQjR9L7ZvS3gUd36VoFg1VHjqwPjM6Re36o4s3NXmQzITu6SkJ0OZQpOdLAiVi/2nvcSaU8jl4boCnoramqoRYkeMkt91k8gNA+CEzXS9/WKQy1PI9ZeS2mmct6yYePwUG+ZETv/FodEUFY9OdSL7LwDc5BxMKwG10+3N3glJcKljag3vZtjCZ5O11TRCRcwEkcdcPHgwaH4M5EQVeF023YsG8VkEcufEuHvrjIuMTAC354Q/LyQjr/1UufsodyX3eh8kcx0=
-
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/637e968b45032d16ee26
-    on_success: change
-    on_failure: always
-    on_start: false
