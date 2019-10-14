@@ -2,8 +2,9 @@ FROM azul/zulu-openjdk-debian:11 AS jre
 
 RUN apt-get -y update && apt-get -y install binutils
 
-# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/ using random
-# guessing of what should be required by a minimal zipkin-server.
+# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
+# TODO(anuraaga): Remove java.management.* and java.sql after there is a slim version of zipkin-server
+# that does not include support for JMX and MySQL.
 RUN cd / && jlink --no-header-files --no-man-pages --compress=2 --strip-debug \
     --add-modules java.base,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.sql,jdk.unsupported \
     --output jre
