@@ -1,5 +1,6 @@
 FROM azul/zulu-openjdk-debian:11 AS jre
 
+# Needed for --strip-debug
 RUN apt-get -y update && apt-get -y install binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
