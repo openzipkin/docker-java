@@ -3,11 +3,12 @@ language: bash
 sudo: required
 
 services:
-  - docker
+      - docker
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+addons:
+  apt:
+    packages:
+      - docker-ce
 
 # our specific build below:
 
