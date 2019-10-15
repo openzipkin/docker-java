@@ -24,7 +24,7 @@ COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
 RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
 
-COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64
-RUN ln -s /usr/lib/jvm/zulu-11-amd64/bin/java /usr/bin/java
+COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
+RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]
