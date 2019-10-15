@@ -3,9 +3,9 @@ FROM azul/zulu-openjdk-debian:11 AS jre
 RUN apt-get -y update && apt-get -y install binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
-RUN cd / && jlink --no-header-files --no-man-pages --compress=2 --strip-debug \
+RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
     --add-modules java.base,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.sql,\
-java.naming,jdk.naming.dns,jdk.unsupported \
+java.sql.rowset,java.naming,jdk.naming.dns,jdk.unsupported \
     --output jre
 
 FROM gcr.io/distroless/java:11-debug AS deps
@@ -13,6 +13,8 @@ FROM gcr.io/distroless/java:11-debug AS deps
 FROM gcr.io/distroless/cc:debug
 
 SHELL ["/busybox/sh", "-c"]
+
+COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
 RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
