@@ -8,9 +8,18 @@ RUN apt-get -y update && apt-get -y install binutils
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
 # improve performance.
 RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
-    --add-modules java.base,java.desktop,java.instrument,java.logging,java.sql,\
-java.sql.rowset,java.naming,jdk.naming.dns,jdk.unsupported \
-    --output jre
+    --add-modules java.base,java.logging,\
+# java.desktop includes java.beans which is used by Spring
+java.desktop,\
+# our default server includes SQL
+java.sql,\
+# we don't use JMX, but log4j2 errors without it: LOG4J2-716
+java.management,\
+# non-netty based DNS
+java.naming,jdk.naming.dns,\
+# sun.misc.Unsafe and friends
+jdk.unsupported\
+ --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
