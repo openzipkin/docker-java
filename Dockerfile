@@ -8,7 +8,7 @@ RUN apt-get -y update && apt-get -y install binutils
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
 # improve performance.
 RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
-    --add-modules java.base,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.sql,\
+    --add-modules java.base,java.desktop,java.instrument,java.logging,java.sql,\
 java.sql.rowset,java.naming,jdk.naming.dns,jdk.unsupported \
     --output jre
 
