@@ -14,6 +14,7 @@ fi
 version="$1"
 tag="openzipkin/jre-full:$version"
 
+export DOCKER_CLI_EXPERIMENTAL=enabled
 docker build --squash -t "$tag" .
 
 docker push "$tag"
