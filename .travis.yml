@@ -10,6 +10,7 @@ before_install:
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
   - echo 'DOCKER_OPTS="--experimental=true"' | sudo tee /etc/default/docker
   - sudo service docker restart
+  - docker version
 
 # our specific build below:
 
