@@ -12,6 +12,7 @@ RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
 java.sql.rowset,java.naming,jdk.naming.dns,jdk.unsupported \
     --output jre
 
+# We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
 FROM gcr.io/distroless/cc:debug
