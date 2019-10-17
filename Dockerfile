@@ -39,4 +39,7 @@ RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
 COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
 
+# set JAVA_HOME for Elasticsearch 6.x
+ENV JAVA_HOME=/usr/lib/jvm/zulu-11-amd64-slim
+
 ENTRYPOINT ["/usr/bin/java", "-jar"]
