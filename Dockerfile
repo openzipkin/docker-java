@@ -20,6 +20,8 @@ java.management,\
 jdk.management.agent,\
 # non-netty based DNS
 java.naming,jdk.naming.dns,\
+# TLS handehake with servers that use elliptic curve certificates
+jdk.crypto.ec,\
 # sun.misc.Unsafe and friends
 jdk.unsupported\
  --output jre
