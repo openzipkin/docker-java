@@ -13,8 +13,12 @@ RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
 java.desktop,\
 # our default server includes SQL
 java.sql,\
+# instrumentation
+java.instrument,\
 # we don't use JMX, but log4j2 errors without it: LOG4J2-716
 java.management,\
+# remote debug
+jdk.jdwp.agent,\
 # prevents us from needing a different base layer for kafka-zookeeper
 # ZooKeeper needs jdk.management.agent, and adding it is 900K vs 200M for a different base layer
 jdk.management.agent,\
