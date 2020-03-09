@@ -19,6 +19,8 @@ java.instrument,\
 java.management,\
 # remote debug
 jdk.jdwp.agent,\
+# JVM metrics such as garbage collection
+jdk.management,\
 # prevents us from needing a different base layer for kafka-zookeeper
 # ZooKeeper needs jdk.management.agent, and adding it is 900K vs 200M for a different base layer
 jdk.management.agent,\
