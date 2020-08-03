@@ -8,8 +8,8 @@ ENV LANG C.UTF-8
 # Add edge repo, needed for latest JRE and tools downstream like runit
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
-# Setup curl as all derivative images use it
-RUN apk add --upgrade --no-cache openjdk8-jre curl
+# Update JRE to latest patch
+RUN apk add --upgrade --no-cache openjdk8-jre
 
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
