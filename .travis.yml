@@ -3,13 +3,7 @@ language: bash
 sudo: required
 
 services:
-  - docker
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - echo 'DOCKER_OPTS="--experimental=true"' | sudo tee /etc/default/docker
-  - sudo service docker restart
+      - docker
 
 # our specific build below:
 
@@ -17,14 +11,21 @@ before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
 
+script:
+- |
+  echo "Updating Docker to have docker squash command"
+  curl https://get.docker.com | sh
+  echo "Enabling docker client experimental features"
+  echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+  sudo service docker restart
+  docker version
+  ./release.sh $TRAVIS_TAG
+
 # Run only for tags as "on: tags: true" will still build master!
 # Heuristic: tags describe versions, so they'll start with a number
 branches:
   only:
     - /^[0-9]/
-
-script:
- - ./release.sh $TRAVIS_TAG
 
 notifications:
   webhooks:
