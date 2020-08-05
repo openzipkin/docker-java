@@ -35,9 +35,13 @@ jdk.unsupported\
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
+# Mainly, this gets BusyBox
 FROM gcr.io/distroless/cc:debug
 
+# Similar to Alpine Linux, we ensure /bin/sh works (via BusyBox)
 SHELL ["/busybox/sh", "-c"]
+RUN ln -s /busybox/sh /bin/sh
+SHELL ["/bin/sh", "-c"]
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
