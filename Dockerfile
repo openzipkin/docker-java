@@ -2,6 +2,8 @@
 #
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
+
+# Since Distroless is Debian based, we take an updated JRE from Zulu's Debian image
 FROM azul/zulu-openjdk-debian:14 AS jre
 
 # Needed for --strip-debug
@@ -49,14 +51,13 @@ LABEL MAINTAINER Zipkin "https://zipkin.io/"
 RUN ["/busybox/sh", "-c", "ln -s /busybox/sh /bin/sh"]
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
-
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
 RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
 
-COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
-RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
+COPY --from=jre /jre /jre
 
-# set JAVA_HOME for Elasticsearch 6.x
-ENV JAVA_HOME=/usr/lib/jvm/zulu-11-amd64-slim
+# Zulu installs the JRE under /jre. Setup the JAVA_HOME and ensure it is in the PATH
+ENV JAVA_HOME=/jre
+RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]

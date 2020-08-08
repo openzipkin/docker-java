@@ -8,9 +8,11 @@ New versions are built on [Travis CI](https://travis-ci.org/openzipkin/docker-jr
 
 For example, with the following output from `docker run (image built) -version`:
 ```
-openjdk version "11.0.4" 2019-07-16 LTS
-OpenJDK Runtime Environment Zulu11.33+15-CA (build 11.0.4+11-LTS)
-OpenJDK 64-Bit Server VM Zulu11.33+15-CA (build 11.0.4+11-LTS, mixed mode)
+openjdk version "14.0.2" 2020-07-14
+OpenJDK Runtime Environment Zulu14.29+23-CA (build 14.0.2+12)
+OpenJDK 64-Bit Server VM Zulu14.29+23-CA (build 14.0.2+12, mixed mode)
 ```
 
-You would name the tag `11.0.4-11.33`, which corresponds to the Zulu directory https://github.com/zulu-openjdk/zulu-openjdk/tree/master/11.0.4-11.33
+You would name the tag `14.0.2-14.29.23`, which makes sense as it corresponds to...
+ * Zulu's most-specific tag the JRE image https://hub.docker.com/r/azul/zulu-openjdk-debian/tags?page=1&name=14
+ * Zulu source directory of their Dockerfile https://github.com/zulu-openjdk/zulu-openjdk/tree/master/14.0.2-14.29.23
