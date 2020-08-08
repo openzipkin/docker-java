@@ -1,13 +1,18 @@
+# This is a base JRE image that also includes a working shell
+#
+# You can choose to lint this via the following command:
+# docker run --rm -i hadolint/hadolint < Dockerfile
 FROM azul/zulu-openjdk-debian:14 AS jre
 
 # Needed for --strip-debug
-RUN apt-get -y update && apt-get -y install binutils
+RUN apt-get -y update && apt-get --no-install-recommends -y install binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
 #
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
 # improve performance.
-RUN cd / && jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
+WORKDIR /
+RUN jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
     --add-modules java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
@@ -38,10 +43,10 @@ FROM gcr.io/distroless/java:11-debug AS deps
 # Mainly, this gets BusyBox
 FROM gcr.io/distroless/cc:debug
 
+LABEL MAINTAINER Zipkin "https://zipkin.io/"
+
 # Similar to Alpine Linux, we ensure /bin/sh works (via BusyBox)
-SHELL ["/busybox/sh", "-c"]
-RUN ln -s /busybox/sh /bin/sh
-SHELL ["/bin/sh", "-c"]
+RUN ["/busybox/sh", "-c", "ln -s /busybox/sh /bin/sh"]
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
