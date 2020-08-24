@@ -16,3 +16,7 @@ OpenJDK 64-Bit Server VM Zulu14.29+23-CA (build 14.0.2+12, mixed mode)
 You would name the tag `14.0.2-14.29.23`, which makes sense as it corresponds to...
  * Zulu's most-specific tag the JRE image https://hub.docker.com/r/azul/zulu-openjdk-debian/tags?page=1&name=14
  * Zulu source directory of their Dockerfile https://github.com/zulu-openjdk/zulu-openjdk/tree/master/14.0.2-14.29.23
+
+Note: The upstream Zulu repository has a monthly release cadence. Maintainers should [watch the repo](https://github.com/zulu-openjdk/zulu-openjdk/watchers),
+in case a pull request corresponds to a release. Since not all releases correspond to pull requests,
+another way is to just check again at each month end.
