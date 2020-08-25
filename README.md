@@ -6,7 +6,7 @@ On Dockerhub: [openzipkin/jre-full](https://hub.docker.com/r/openzipkin/jre-full
 
 New versions are built on [Travis CI](https://travis-ci.org/openzipkin/docker-jre-full). To trigger a build, push a new tag to GitHub. The tag will be the Docker tag assigned to the newly built image. Name the tag according to the JDK variant use.
 
-For example, with the following output from `docker run (image built) -version`:
+For example, with the following output from `docker run --rm (image built) -version`:
 ```
 openjdk version "14.0.2" 2020-07-14
 OpenJDK Runtime Environment Zulu14.29+23-CA (build 14.0.2+12)
