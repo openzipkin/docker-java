@@ -8,11 +8,11 @@ New versions are built on [Travis CI](https://travis-ci.org/openzipkin/docker-jr
 
 The tag will be the Docker tag assigned to the newly built image. Name the tag according to the JDK variant use.
 
-For example, with the following output from `docker run (image built) -version`:
+For example, with the following output from `docker run (image built) java -version`:
 ```
 openjdk version "1.8.0_252"
-OpenJDK Runtime Environment (IcedTea 3.16.0) (Alpine 8.252.09-r0)
+OpenJDK Runtime Environment (IcedTea 3.16.0) (Alpine 8.252.09-r1)
 OpenJDK 64-Bit Server VM (build 25.252-b09, mixed mode)
 ```
 
-You would name the tag `1.8.0_252`.
+You would name the tag `1.8.0_252-b09`.
