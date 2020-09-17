@@ -18,8 +18,6 @@ RUN jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
     --add-modules java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
-# Required by Lucene/Elasticsearch for Thai Segmentation
-jdk.localedata,\
 # our default server includes SQL
 java.sql,\
 # instrumentation
@@ -38,7 +36,10 @@ java.naming,jdk.naming.dns,\
 # TLS handehake with servers that use elliptic curve certificates
 jdk.crypto.ec,\
 # sun.misc.Unsafe and friends
-jdk.unsupported\
+jdk.unsupported,\
+# Elasticsearch 7+ crashes without Thai Segmentation support
+#  Add <900K instead of a different base layer
+jdk.localedata --include-locales en,th\
  --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
