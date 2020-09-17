@@ -18,6 +18,8 @@ RUN jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
     --add-modules java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
+# Required by Lucene/Elasticsearch for Thai Segmentation
+jdk.localedata,\
 # our default server includes SQL
 java.sql,\
 # instrumentation
@@ -40,9 +42,11 @@ jdk.unsupported\
  --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
+#   See https://console.cloud.google.com/gcr/images/distroless/GLOBAL/java
 FROM gcr.io/distroless/java:11-debug AS deps
 
 # Mainly, this gets BusyBox
+#   See https://console.cloud.google.com/gcr/images/distroless/GLOBAL/cc
 FROM gcr.io/distroless/cc:debug
 
 LABEL MAINTAINER Zipkin "https://zipkin.io/"
