@@ -48,6 +48,9 @@ MAINTAINER OpenZipkin "http://zipkin.io/"
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8
 
+# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN apk add --no-cache libc6-compat
+
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf

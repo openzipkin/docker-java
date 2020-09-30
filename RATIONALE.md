@@ -26,9 +26,11 @@ openzipkin/jre-full                  alpine              128317d6038e        20 
 openzipkin/jre-full                  distroless          0717ad881158        3 minutes ago       102MB
 ```
 
-### We are ok not having BoringSSL in the default image
+### We are still smaller adding BoringSSL support
 
-BoringSSL is not formally supported on Alpine (citation needed). We used to rely
-on this to provide ALPN support needed for zipkin-gcp integration. Since then,
-all recent Zulu builds support ALPN, so we no longer have a hard need for it.
-For example, even JDK 1.8 supports ALPN since 8u252.
+Some applications like gRPC prefer use of BoringSSL over default TLS libraries.
+To support `netty-tcnative-boringssl-static` on Distroless, there are no special
+instructions. However, for Alpine we need to install `libc6-compat` per [https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty].
+
+While the additional package increases our distribution by 600KB, it is still
+almost 15MB smaller than using Distroless.
