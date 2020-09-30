@@ -3,19 +3,19 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# Since Distroless is Debian based, we take an updated JRE from Zulu's Debian image
-FROM azul/zulu-openjdk-debian:14 AS jre
+FROM alpine:3.12 as install
 
-# Needed for --strip-debug
-RUN apt-get -y update && apt-get --no-install-recommends -y install binutils
+WORKDIR /install
+
+# Install latest JDK 15, which we will use link to create a smaller JRE than the default (200MB)
+RUN wget --quiet https://cdn.azul.com/public_keys/alpine-signing@azul.com-5d5dc44c.rsa.pub -P /etc/apk/keys/
+RUN echo https://repos.azul.com/zulu/alpine >> /etc/apk/repositories
+#   binutils is needed for --strip-debug
+RUN apk add --no-cache zulu15-jdk binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
-#
-# jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
-# improve performance.
-WORKDIR /
-RUN jlink --no-header-files --no-man-pages --compress=0 --strip-debug \
-    --add-modules java.base,java.logging,\
+RUN /usr/lib/jvm/zulu15-ca/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
+java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
 # our default server includes SQL
@@ -35,33 +35,27 @@ jdk.management.agent,\
 java.naming,jdk.naming.dns,\
 # TLS handehake with servers that use elliptic curve certificates
 jdk.crypto.ec,\
-# sun.misc.Unsafe and friends
+# jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
+# improve performance. Ex. sun.misc.Unsafe and friends
 jdk.unsupported,\
 # Elasticsearch 7+ crashes without Thai Segmentation support
 #  Add <900K instead of a different base layer
 jdk.localedata --include-locales en,th\
  --output jre
 
-# We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
-#   See https://console.cloud.google.com/gcr/images/distroless/GLOBAL/java
-FROM gcr.io/distroless/java:11-debug AS deps
+FROM alpine:3.12
 
-# Mainly, this gets BusyBox
-#   See https://console.cloud.google.com/gcr/images/distroless/GLOBAL/cc
-FROM gcr.io/distroless/cc:debug
+MAINTAINER OpenZipkin "http://zipkin.io/"
 
-LABEL MAINTAINER Zipkin "https://zipkin.io/"
+# Default to UTF-8 file.encoding
+ENV LANG C.UTF-8
 
-# Similar to Alpine Linux, we ensure /bin/sh works (via BusyBox)
-RUN ["/busybox/sh", "-c", "ln -s /busybox/sh /bin/sh"]
+# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
+# will throw UnknownHostException as the local hostname isn't in DNS.
+RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
-COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
-COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
-
-COPY --from=jre /jre /jre
-
-# Zulu installs the JRE under /jre. Setup the JAVA_HOME and ensure it is in the PATH
+# Setup the JAVA_HOME and ensure it is in the PATH
+COPY --from=install /install/jre /jre
 ENV JAVA_HOME=/jre
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
 
