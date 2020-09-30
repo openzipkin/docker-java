@@ -15,7 +15,7 @@ Alpine does this by default.
 
 ### We want the smallest base image
 
-We are often criticized for the size of our sDdocker image, as it is an ancillary
+We are often criticized for the size of our Docker image, as it is an ancillary
 part of people's environments. Zipkin's 'slim' build is currently a 26MB jar
 file. The bulk of the size left is the JRE. Here's a comparison of size between
 a comparible build of the same JRE, one with Distroless (Debian based) and the
