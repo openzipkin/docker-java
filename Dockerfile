@@ -11,7 +11,7 @@ WORKDIR /install
 #   binutils is needed for --strip-debug
 RUN apk add --no-cache binutils
 
-# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
+# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/15/docs/api/
 RUN /usr/lib/jvm/zulu15-ca/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
