@@ -7,7 +7,7 @@ FROM alpine:3.12 as install
 
 WORKDIR /install
 
-# Install latest JDK 15, which we will use link to create a smaller JRE than the default (200MB)
+# Install latest JDK 15: we will later use jlink to create a smaller JRE than the default (200MB)
 RUN wget --quiet https://cdn.azul.com/public_keys/alpine-signing@azul.com-5d5dc44c.rsa.pub -P /etc/apk/keys/
 RUN echo https://repos.azul.com/zulu/alpine >> /etc/apk/repositories
 #   binutils is needed for --strip-debug
