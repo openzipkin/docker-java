@@ -3,15 +3,13 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-FROM alpine:3.12 as install
+# Get latest JDK 15: we will later use jlink to create a smaller JRE than the default (200MB)
+FROM azul/zulu-openjdk-alpine:15 as install
 
 WORKDIR /install
 
-# Install latest JDK 15: we will later use jlink to create a smaller JRE than the default (200MB)
-RUN wget --quiet https://cdn.azul.com/public_keys/alpine-signing@azul.com-5d5dc44c.rsa.pub -P /etc/apk/keys/
-RUN echo https://repos.azul.com/zulu/alpine >> /etc/apk/repositories
 #   binutils is needed for --strip-debug
-RUN apk add --no-cache zulu15-jdk binutils
+RUN apk add --no-cache binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
 RUN /usr/lib/jvm/zulu15-ca/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
