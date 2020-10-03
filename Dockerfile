@@ -3,12 +3,21 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# Get latest JDK 15: we will later use jlink to create a smaller JRE than the default (200MB)
-FROM azul/zulu-openjdk-alpine:15 as install
+# Zulu's most-specific tag of the 15 image https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
+ARG zulu_tag
+
+FROM azul/zulu-openjdk-alpine:$zulu_tag as jdk
+LABEL MAINTAINER Zipkin "https://zipkin.io/"
+
+# Install Maven, tar and libc hooks
+COPY install.sh /tmp/
+RUN /tmp/install.sh && rm /tmp/install.sh
+
+FROM jdk as install
 
 WORKDIR /install
 
-#   binutils is needed for --strip-debug
+# binutils is needed for --strip-debug
 RUN apk add --no-cache binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/15/docs/api/
@@ -41,7 +50,7 @@ jdk.unsupported,\
 jdk.localedata --include-locales en,th\
  --output jre
 
-FROM alpine:3.12
+FROM alpine:3.12 as jre
 
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
@@ -51,13 +60,11 @@ ENV LANG C.UTF-8
 # Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
 RUN apk add --no-cache libc6-compat
 
-# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
-# will throw UnknownHostException as the local hostname isn't in DNS.
-RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+COPY --from=jdk /etc/nsswitch.conf /etc/nsswitch.conf
 
-# Setup the JAVA_HOME and ensure it is in the PATH
-COPY --from=install /install/jre /jre
-ENV JAVA_HOME=/jre
+# Setup the JAVA_HOME and ensure it is in the PATH (use same path as JDK)
+ENV JAVA_HOME=/usr/lib/jvm/zulu15-ca
+COPY --from=install /install/jre $JAVA_HOME
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]
