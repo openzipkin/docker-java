@@ -14,8 +14,7 @@ fi
 
 ZULU_TAG="$1"
 
-export DOCKER_CLI_EXPERIMENTAL=enabled
-docker build --build-arg zulu_tag=${ZULU_TAG} --squash -t "openzipkin/java:${ZULU_TAG}" --target jdk .
-docker build --build-arg zulu_tag=${ZULU_TAG} --squash -t "openzipkin/java:${ZULU_TAG}-jre" --target jre .
+docker build --build-arg zulu_tag=${ZULU_TAG} -t "openzipkin/java:${ZULU_TAG}" --target jdk .
+docker build --build-arg zulu_tag=${ZULU_TAG} -t "openzipkin/java:${ZULU_TAG}-jre" --target jre .
 
 docker push "$tag"

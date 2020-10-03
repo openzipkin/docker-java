@@ -5,11 +5,33 @@
 
 # Zulu's most-specific tag of the 15 image https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
 ARG zulu_tag
+FROM azul/zulu-openjdk-alpine:$zulu_tag as zulu
 
-FROM azul/zulu-openjdk-alpine:$zulu_tag as jdk
-LABEL MAINTAINER Zipkin "https://zipkin.io/"
+FROM alpine:3.12 as base
 
-# Install Maven, tar and libc hooks
+MAINTAINER OpenZipkin "http://zipkin.io/"
+
+# Default to UTF-8 file.encoding
+ENV LANG C.UTF-8
+
+# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
+# will throw UnknownHostException as the local hostname isn't in DNS.
+RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+
+# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN apk add --no-cache libc6-compat
+
+ENV JAVA_HOME=/usr/lib/jvm/zulu15-ca
+
+ENTRYPOINT ["/usr/bin/java", "-jar"]
+
+FROM base as jdk
+
+COPY --from=zulu $JAVA_HOME $JAVA_HOME
+RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java && \
+    ln -s $JAVA_HOME/bin/jar /usr/local/bin/jar
+
+# Install Maven and tar
 COPY install.sh /tmp/
 RUN /tmp/install.sh && rm /tmp/install.sh
 
@@ -50,21 +72,7 @@ jdk.unsupported,\
 jdk.localedata --include-locales en,th\
  --output jre
 
-FROM alpine:3.12 as jre
+FROM base as jre
 
-MAINTAINER OpenZipkin "http://zipkin.io/"
-
-# Default to UTF-8 file.encoding
-ENV LANG C.UTF-8
-
-# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-RUN apk add --no-cache libc6-compat
-
-COPY --from=jdk /etc/nsswitch.conf /etc/nsswitch.conf
-
-# Setup the JAVA_HOME and ensure it is in the PATH (use same path as JDK)
-ENV JAVA_HOME=/usr/lib/jvm/zulu15-ca
 COPY --from=install /install/jre $JAVA_HOME
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
-
-ENTRYPOINT ["/usr/bin/java", "-jar"]
