@@ -31,19 +31,20 @@ COPY --from=zulu $JAVA_HOME $JAVA_HOME
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java && \
     ln -s $JAVA_HOME/bin/jar /usr/local/bin/jar
 
+# binutils is needed for some node modules and jlink --strip-debug
+RUN apk add --no-cache binutils
+
 # Install Maven and tar
 COPY install.sh /tmp/
 RUN /tmp/install.sh && rm /tmp/install.sh
 
+# Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install
 
 WORKDIR /install
 
-# binutils is needed for --strip-debug
-RUN apk add --no-cache binutils
-
-# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/15/docs/api/
-RUN /usr/lib/jvm/zulu15-ca/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
+# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
+RUN $JAVA_HOME/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
@@ -72,6 +73,7 @@ jdk.unsupported,\
 jdk.localedata --include-locales en,th\
  --output jre
 
+# Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
 FROM base as jre
 
 COPY --from=install /install/jre $JAVA_HOME
