@@ -1,4 +1,4 @@
-# zipkin-docker-jre rationale
+# docker-java rationale
 
 ## Why do we use Alpine Linux instead of Distroless?
 
@@ -18,12 +18,12 @@ Alpine does this by default.
 We are often criticized for the size of our Docker image, as it is an ancillary
 part of people's environments. Zipkin's 'slim' build is currently a 26MB jar
 file. The bulk of the size left is the JRE. Here's a comparison of size between
-a comparible build of the same JRE, one with Distroless (Debian based) and the
+a comparable build of the same JRE, one with Distroless (Debian based) and the
 other Alpine.
 
 ```
-openzipkin/jre-full                  alpine              128317d6038e        20 seconds ago      87.1MB
-openzipkin/jre-full                  distroless          0717ad881158        3 minutes ago       102MB
+openzipkin/java                  alpine              128317d6038e        20 seconds ago      87.1MB
+openzipkin/java                  distroless          0717ad881158        3 minutes ago       102MB
 ```
 
 ### We are still smaller adding BoringSSL support

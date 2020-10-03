@@ -3,16 +3,48 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# Get latest JDK 15: we will later use jlink to create a smaller JRE than the default (200MB)
-FROM azul/zulu-openjdk-alpine:15 as install
+# Zulu's most-specific tag of the 15 image https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
+ARG zulu_tag
+FROM azul/zulu-openjdk-alpine:$zulu_tag as zulu
+
+FROM alpine:3.12 as base
+
+MAINTAINER OpenZipkin "http://zipkin.io/"
+
+# Default to UTF-8 file.encoding
+ENV LANG C.UTF-8
+
+# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
+# will throw UnknownHostException as the local hostname isn't in DNS.
+RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+
+# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN apk add --no-cache libc6-compat
+
+ENV JAVA_HOME=/usr/lib/jvm/zulu15-ca
+
+ENTRYPOINT ["/usr/bin/java", "-jar"]
+
+FROM base as jdk
+
+COPY --from=zulu $JAVA_HOME $JAVA_HOME
+RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java && \
+    ln -s $JAVA_HOME/bin/jar /usr/local/bin/jar
+
+# binutils is needed for some node modules and jlink --strip-debug
+RUN apk add --no-cache binutils
+
+# Install Maven and tar
+COPY install.sh /tmp/
+RUN /tmp/install.sh && rm /tmp/install.sh
+
+# Use a temporary target to build a JRE using the JDK we just built
+FROM jdk as install
 
 WORKDIR /install
 
-#   binutils is needed for --strip-debug
-RUN apk add --no-cache binutils
-
-# Included modules cherrypicked from https://docs.oracle.com/en/java/javase/15/docs/api/
-RUN /usr/lib/jvm/zulu15-ca/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
+# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
+RUN $JAVA_HOME/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
@@ -41,23 +73,8 @@ jdk.unsupported,\
 jdk.localedata --include-locales en,th\
  --output jre
 
-FROM alpine:3.12
+# Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
+FROM base as jre
 
-MAINTAINER OpenZipkin "http://zipkin.io/"
-
-# Default to UTF-8 file.encoding
-ENV LANG C.UTF-8
-
-# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-RUN apk add --no-cache libc6-compat
-
-# Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
-# will throw UnknownHostException as the local hostname isn't in DNS.
-RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
-
-# Setup the JAVA_HOME and ensure it is in the PATH
-COPY --from=install /install/jre /jre
-ENV JAVA_HOME=/jre
+COPY --from=install /install/jre $JAVA_HOME
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
-
-ENTRYPOINT ["/usr/bin/java", "-jar"]

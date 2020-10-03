@@ -7,14 +7,14 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 version"
-    echo "  version: the version output from building azul/zulu-openjdk-debian "
+    echo "Usage: $0 zulu_tag"
+    echo "  version: the version output from building zulu-openjdk-alpine "
     exit 1
 fi
-version="$1"
-tag="openzipkin/jre-full:$version"
 
-export DOCKER_CLI_EXPERIMENTAL=enabled
-docker build --squash -t "$tag" .
+ZULU_TAG="$1"
+
+docker build --build-arg zulu_tag=${ZULU_TAG} -t "openzipkin/java:${ZULU_TAG}" --target jdk .
+docker build --build-arg zulu_tag=${ZULU_TAG} -t "openzipkin/java:${ZULU_TAG}-jre" --target jre .
 
 docker push "$tag"
