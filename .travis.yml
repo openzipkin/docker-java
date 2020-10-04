@@ -11,6 +11,8 @@ before_script:
   # Log in to Docker Hub for releasing the image
   - docker login -u dockerzipkindeployer -p "$DOCKERHUB_PASSWORD"
 
+script: ./release.sh $TRAVIS_TAG
+
 # Run only for tags as "on: tags: true" will still build master!
 # Heuristic: tags describe versions, so they'll start with a number
 branches:
