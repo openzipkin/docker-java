@@ -3,8 +3,9 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# Zulu's most-specific tag of the 15 image https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
-ARG zulu_tag
+# To allow local builds, we default this to 15. Releases should set this to Zulu's most-specific
+# Java 15 image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
+ARG zulu_tag=15
 FROM azul/zulu-openjdk-alpine:$zulu_tag as zulu
 
 FROM alpine:3.12 as base
