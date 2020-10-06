@@ -1,4 +1,4 @@
-# This is a base JRE image that also includes a working shell
+# This builds a base JDK and JRE 11+ image that also includes a working shell
 #
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
@@ -9,8 +9,11 @@ ARG zulu_tag=15
 
 FROM azul/zulu-openjdk-alpine:$zulu_tag as zuluJDK
 
+WORKDIR /java
 # CD into the directory in order to copy paths without symlinks
-RUN cd ${JAVA_HOME} && mkdir /java && cp -rp * /java/ && find /java -type l -exec rm -f {} \;
+RUN (cd ${JAVA_HOME} && cp -rp * /java/) && \
+    # Remove any symlinks as these won't resolve later
+    find . -type l -exec rm -f {} \;
 
 FROM alpine:3.12 as base
 
@@ -34,8 +37,8 @@ ENTRYPOINT ["/usr/bin/java", "-jar"]
 FROM base as jdk
 
 COPY --from=zuluJDK /java/ .
-RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java && \
-    ln -s ${JAVA_HOME}/bin/jar /usr/bin/jar
+RUN ln -s ${PWD}/bin/java /usr/bin/java && \
+    ln -s ${PWD}/bin/jar /usr/bin/jar
 
 # * binutils is needed for some node modules and jlink --strip-debug
 # * BusyBux built-in tar doesn't support --strip=1
@@ -45,7 +48,7 @@ RUN apk add --no-cache binutils tar && \
     APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp') && \
     MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
     mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
-    ln -s ${JAVA_HOME}/maven/bin/mvn /usr/bin/mvn
+    ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
 # Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install
