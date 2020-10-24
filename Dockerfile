@@ -3,9 +3,9 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# To allow local builds, we default this to 7u282. Releases should set this to Zulu's most-specific
-# Java 7u282 image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=7u282
-ARG zulu_tag=7u282
+# To allow local builds, we default this to 6u119-6.22.0.3. Releases should set this to Zulu's most-specific
+# Java 6u119-6.22.0.3 image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=6u119-6.22.0.3
+ARG zulu_tag=6u119-6.22.0.3
 
 FROM azul/zulu-openjdk-alpine:$zulu_tag as zuluJDK
 
@@ -18,6 +18,7 @@ ENV LANG C.UTF-8
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
+ENV JAVA_HOME=/usr/lib/jvm/zulu6.22.0.3-jdk6.0.119-linux_x64
 WORKDIR ${JAVA_HOME}
 
 ENTRYPOINT ["java", "-jar"]
