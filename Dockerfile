@@ -3,19 +3,11 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# To allow local builds, we default this to 8-jre-headless. Releases should set this to Zulu's most-specific
-# Java 8-jre-headless image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=8-jre-headless
-ARG zulu_tag=8-jre-headless
+# To allow local builds, we default this to 7u282. Releases should set this to Zulu's most-specific
+# Java 7u282 image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=7u282
+ARG zulu_tag=7u282
 
 FROM azul/zulu-openjdk-alpine:$zulu_tag as zuluJDK
-
-WORKDIR /java
-# CD into the directory in order to copy paths without symlinks
-RUN (cd ${JAVA_HOME} && cp -rp * /java/) && \
-    # Remove any symlinks as these won't resolve later
-    find . -type l -exec rm -f {} \;
-
-FROM alpine:3.12
 
 LABEL MAINTAINER OpenZipkin "http://zipkin.io/"
 
@@ -26,14 +18,6 @@ ENV LANG C.UTF-8
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
-# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-RUN apk add --no-cache libc6-compat
-
-ENV JAVA_HOME=/java
 WORKDIR ${JAVA_HOME}
 
-# Copy the JDK from Zulu's JRE image
-COPY --from=zuluJDK /java/jre/ .
-RUN ln -s ${PWD}/bin/java /usr/bin/java
-
-ENTRYPOINT ["/usr/bin/java", "-jar"]
+ENTRYPOINT ["java", "-jar"]
