@@ -1,6 +1,6 @@
-`openzipkin/java` is a minimal Docker image based on [azul/zulu-openjdk-alpine](https://hub.docker.com/r/azul/zulu-openjdk-alpine).
+`ghcr.io/openzipkin/java` is a minimal Docker image based on [azul/zulu-openjdk-alpine](https://hub.docker.com/r/azul/zulu-openjdk-alpine).
 
-On Dockerhub: [openzipkin/java](https://hub.docker.com/r/openzipkin/java/) there will be two tags
+On GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) there will be two tags
 per version. The one ending in `-jre` is a minimal build including modules Zipkin related images
 need. The unqualified is a JDK that also includes Maven.
 
