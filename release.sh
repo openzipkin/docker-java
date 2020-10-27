@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh -x
 # Takes a minimal but full JDK image from azul/zulu-openjdk-debian
 # Removes the JDK and keeps the full JRE
 # Then squashes to minimize the image size
 # The resulting images are expected to change rarely, if ever
 
-set -euo pipefail
+set -eu
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 zulu_tag"
@@ -14,6 +14,6 @@ fi
 
 ZULU_TAG="$1"
 
-docker build --build-arg zulu_tag=${ZULU_TAG} -t "openzipkin/java:${ZULU_TAG}" .
+docker build --build-arg zulu_tag=${ZULU_TAG} -t "ghcr.io/openzipkin/java:${ZULU_TAG}" .
 
-docker push "openzipkin/java:${ZULU_TAG}"
+docker push "ghcr.io/openzipkin/java:${ZULU_TAG}"
