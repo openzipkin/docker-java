@@ -1,19 +1,33 @@
 #!/bin/sh -x
-# Takes a minimal but full JDK image from azul/zulu-openjdk-debian
-# Removes the JDK and keeps the full JRE
-# Then squashes to minimize the image size
-# The resulting images are expected to change rarely, if ever
 
+# Makes two images based on Alpine Linux. One for OpenJDK and another for a stripped JRE
 set -eu
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 zulu_tag"
-    echo "  version: the version output from building zulu-openjdk-alpine "
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 java_version"
+    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15: Ex. 15.0.1_p9-r0"
     exit 1
 fi
 
-ZULU_TAG="$1"
+ALPINE_VERSION=3.12.1
+JAVA_VERSION="$1"
+PLATFORMS="linux/amd64,linux/arm64"
 
-docker build --build-arg zulu_tag=${ZULU_TAG} -t "ghcr.io/openzipkin/java:${ZULU_TAG}" .
+# buildx is experimental
+export DOCKER_CLI_EXPERIMENTAL=enabled
+BUILDX="docker buildx build --progress plain \
+--build-arg alpine_version=${ALPINE_VERSION} --label alpine-version=${ALPINE_VERSION} \
+--build-arg java_version=${JAVA_VERSION} --label java-version=${JAVA_VERSION}"
 
-docker push "ghcr.io/openzipkin/java:${ZULU_TAG}"
+# We need to build separately per arch to test to use -load https://github.com/docker/buildx/issues/59
+# Testing multiple archs likely requires qemu: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+for platform in $(echo $PLATFORMS|tr -s ',' ' '); do
+  tag=openzipkin/java:test-jre
+  ${BUILDX} --target jre --tag ${tag} --platform=${platform} --load .
+  docker run --rm ${tag} -version
+done
+
+# If we got here, we assume the images can be trusted. Go ahead and push them
+tag=ghcr.io/openzipkin/java:${JAVA_VERSION}-jre
+echo Pushing image ${tag}
+${BUILDX} --target jre --tag ${tag} --platform=${PLATFORMS} --push .
