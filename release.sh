@@ -13,6 +13,8 @@ ALPINE_VERSION=3.12.1
 JAVA_VERSION="$1"
 PLATFORMS="linux/amd64,linux/arm64"
 
+# buildx is experimental
+export DOCKER_CLI_EXPERIMENTAL=enabled
 BUILDX="docker buildx build --progress plain \
 --build-arg alpine_version=${ALPINE_VERSION} --label alpine-version=${ALPINE_VERSION} \
 --build-arg java_version=${JAVA_VERSION} --label java-version=${JAVA_VERSION}"

@@ -40,10 +40,11 @@ ENV JAVA_HOME=/java
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
-# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-RUN apk add --no-cache libc6-compat
-
 WORKDIR ${JAVA_HOME}
+
+# Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN apk add --no-cache java-cacerts libc6-compat && \
+    mkdir -p lib/security/ && ln -s /etc/ssl/certs/java/cacerts ${PWD}/lib/security/cacerts
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]
 
