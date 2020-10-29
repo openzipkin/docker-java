@@ -1,15 +1,24 @@
-# update docker and enable squash similar to https://github.com/Dalee/build.docker/blob/master/.travis.yml
+# Run `travis lint` when changing this file to avoid breaking the build.
+
+# We need a full VM so that testcontainers can use Docker
+# See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
+arch: amd64           # arm64 is LXD containers which we can't use because we run Docker tests
+os: linux             # required for arch different than amd64
+dist: focal           # newest available distribution
+
 language: bash
-sudo: required
 
 services:
   - docker
 
+env:
+  global:
+    # Enable experimental features as buildx is still experimental
+    - DOCKER_CLI_EXPERIMENTAL=enabled
+
 before_script:
   # Ensure buildx is available and can build multi-architecture
   - |
-    # Enable experimental features as buildx is still experimental
-    export DOCKER_CLI_EXPERIMENTAL=enabled
     echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
     # Enable execution of different multi-architecture containers by QEMU and binfmt_misc
