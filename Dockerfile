@@ -3,24 +3,38 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# To allow local builds, we default this to 15. Releases should set this to Zulu's most-specific
-# Java 15 image tag https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=15
-ARG zulu_tag=15
+# Update, but use a stable version so that there's less layer drift during multi-day releases
+ARG alpine_version=3.12.1
+FROM alpine:$alpine_version as openJDK
 
-FROM azul/zulu-openjdk-alpine:$zulu_tag as zuluJDK
+# OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk15
+ARG java_version
+ENV JAVA_VERSION=$java_version
+
+RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
+    echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
+    PACKAGE=openjdk$(echo ${JAVA_VERSION}| cut -f1 -d.) && \
+    apk --no-cache add ${PACKAGE}=${JAVA_VERSION} && \
+    java -version java_version
+
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm/
 
 WORKDIR /java
+
 # CD into the directory in order to copy paths without symlinks
 RUN (cd ${JAVA_HOME} && cp -rp * /java/) && \
     # Remove any symlinks as these won't resolve later
     find . -type l -exec rm -f {} \;
 
-FROM alpine:3.12 as base
+FROM alpine:$alpine_version as base
 
-LABEL MAINTAINER OpenZipkin "http://zipkin.io/"
+LABEL maintainer="OpenZipkin https://zipkin.io/"
 
 # Default to UTF-8 file.encoding
-ENV LANG C.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+ENV JAVA_HOME=/java
 
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
@@ -29,14 +43,13 @@ RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswit
 # Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
 RUN apk add --no-cache libc6-compat
 
-ENV JAVA_HOME=/java
 WORKDIR ${JAVA_HOME}
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]
 
 FROM base as jdk
 
-COPY --from=zuluJDK /java/ .
+COPY --from=openJDK /java/ .
 RUN ln -s ${PWD}/bin/java /usr/bin/java && \
     ln -s ${PWD}/bin/jar /usr/bin/jar
 
@@ -48,15 +61,19 @@ RUN apk add --no-cache binutils tar && \
     APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp') && \
     MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
     mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
-    ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
+    ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn && \
+    mvn -version
 
 # Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install
 
 WORKDIR /install
 
+RUN JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2| cut -f1 -d.) && \
+# Opt out of --strip-debug when openjdk15+arm64 per https://github.com/openzipkin/docker-java/issues/34
+if [[ "${JAVA_VERSION}" = "15" && "$(uname -m)" = "aarch64" ]]; then STRIP=""; else STRIP="--strip-debug"; fi && \
 # Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
-RUN ${JAVA_HOME}/bin/jlink --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
+${JAVA_HOME}/bin/jlink --vm=server --no-header-files --no-man-pages --compress=0 ${STRIP} --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\

@@ -3,13 +3,24 @@ language: bash
 sudo: required
 
 services:
-      - docker
-
-# our specific build below:
+  - docker
 
 before_script:
-  # Log in to Docker Hub for releasing the image
-  - echo "$GH_TOKEN"| docker login ghcr.io -u "$GH_USER" --password-stdin
+  # Ensure buildx is available and can build multi-architecture
+  - |
+    export DOCKER_CLI_EXPERIMENTAL=enabled
+    echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+    sudo service docker restart
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    docker buildx create --name builder --use
+  - |
+    # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
+    # controlled by branch (typically only master). Check to see if a well-known env is available
+    # before attempting to log in.
+    if [[ -n "$GH_USER" ]]; then
+      # Log in to Docker Hub for releasing the image
+      echo "$GH_TOKEN"| docker login ghcr.io -u "$GH_USER" --password-stdin
+    fi
 
 script: ./release.sh $TRAVIS_TAG
 
@@ -27,9 +38,11 @@ notifications:
     on_success: change
     on_failure: always
 
-env:
-  global:
-    # Ex. travis encrypt GH_USER=your_github_account
-    - secure: "BWJH4sEQMREo0pEiKc911uNDEFUS9/8S6qXbfouECLGkganh/8XfNR2tOTAna/paUzE/HIq5kb8ayDPj0hWrZ8onAPB5eN8n5/xF/c8iIjYyNEudmKmJdpm0gNkvnxVBVoaNUQPR/sRYMf5vLhwff24buwNARkTn2jxJdVJJktQU12432UjaWR0y1vekgUfiZOlbVwxPvtImPIu0jQipPikG6RgcvFwd5kqK3LVIw1Kox9/44EpwFZIeiwW/f/jxV6bTbnwlps6k44JgOVbygZRwqwmh+OpB8dbdw++agUkd3NcuEDyv4LE9UG9UknYAuAxt++Jns2QjXMt2oMG3+aZiJjbmLB7imP7GDfrDNzDiOYxUIwFsAXC6VXD3NaPt974KxEL3aZLlQAPztC9Wg60fC3SBWoXpYbYsw22qd72bK4Bk8Lms1y4AvZcRwguCnati1FpO0voKS+NnexwDQjJFgRy0NAeRiAHSmO05NB4aqKUIFKLyupqUNt2zECHqVElbZ7tCPv++kxNEgYzPDekcCglk9DFOnbbyRLTm3puI8dpJNhnVEhfkbMnXmU7nhusX1zCSqHaWz8l4spRPtgDgBcYDrVnfwMc3STL3IQe1CAqbf11+28AtfExeR/jEncfIEWTqW2wya/Q1eLl267vq6Ao1c0K9CQRyvp0URf0="
-    # Ex. travis encrypt GH_TOKEN=XXX-https://github.com/settings/tokens-XXX --add
-    - secure: "Zq/LtJSN5O5wxw5mSoadJTWXi4nNaw2irmydq6l/IWCFeOHBlibW7KFFd1ImiY/4v5WDboynKHagOd0zayo7V8woI2d74t0rksaOh7QqZJ4gAxi2oCWLeSHFvZWRZYu2RxopqIpN0UPrJSThSO+R3zZpvK9Dz1VWoOniXvxa7iYfHtgzXObqCGCMEhvRKZNfM+2eG3OXlIG7mnj6hRIjD/lfJiCOZBvekl+zTyg5p/Z1wQCFLFGC5NAYYPgZll+Jgt7LLzlUhx1AOcWAsonxcLL40v+FvslZMVRvDCRZBxedI/jaBDtIJwTsE87B5h0F7M3Teo0oqiImn6mWejMcDPVhwY1m/VwBaAmpip7nx+9EXDZtNn5jb4QiIkT7MxUxpLHbop3WhIa8rn0ybNAlKY2LF2v9Z932H92fbEvOfVhZuDACZ9DGIVXkv/XRIXiNvvYNEZyJ0Tc4U7NG1LFw/BxTPY1HnmOf1uuA2Alboj5A9LOvXHkP3ej2Tqx1lQdDTdqHCeeADwcidekLYhi0caiNn1mE9o44CkSnAJKZMrkL4gWTAMjYyC2j30puI8nhxqlYITwoyZWDxA+I+VSm1uKzxg68p2x9+iGnHfGFNVPdM/7Vyat74Sm+lFF07IrI7ne7LKS9rHQ2Zb+0xQkI4otcXXJLKdYUuQc0xnvk61U="
+# When Travis, add to https://travis-ci.org/github/openzipkin/${REPO}/settings
+#
+# GH_TOKEN=XXX-https://github.com/settings/tokens-XXX
+#   - makes release commits and tags, also writes to GHCR if Docker
+#   - needs repo:status, public_repo and if Docker write:packages, delete:packages
+#   - referenced in .settings.xml
+#   - store like this: echo "https://$GH_TOKEN:@github.com" > .git/credentials
+# GH_USER=user_that_created_GH_TOKEN
