@@ -15,7 +15,7 @@ before_install:
   # Ensure Docker buildx is available and can build multi-architecture
   - |
     # Enable experimental features on the server (multi-arch)
-    echo '{"experimental":"enabled"}' > sudo tee /etc/docker/daemon.json
+    echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
     # Enable experimental client features (eg docker buildx)
     mkdir -p $HOME/.docker && echo '{"experimental":"enabled"}' > $HOME/.docker/config.json
