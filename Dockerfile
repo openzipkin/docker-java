@@ -14,7 +14,7 @@ ENV JAVA_VERSION=$java_version
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
     PACKAGE=openjdk$(echo ${JAVA_VERSION}| cut -f1 -d.) && \
-    apk --no-cache add ${PACKAGE}=${JAVA_VERSION} && \
+    apk --no-cache add ${PACKAGE}=~${JAVA_VERSION} && \
     java -version java_version
 
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm/
@@ -54,6 +54,12 @@ COPY --from=openJDK /java/ .
 RUN ln -s ${PWD}/bin/java /usr/bin/java && \
     ln -s ${PWD}/bin/jar /usr/bin/jar
 
+# Later installations may require more recent versions of packages such as nodejs
+RUN for repository in main testing community; do \
+      repository_url=https://dl-cdn.alpinelinux.org/alpine/edge/${repository} && \
+      grep -qF -- $repository_url /etc/apk/repositories || echo $repository_url >> /etc/apk/repositories; \
+    done
+
 # * binutils is needed for some node modules and jlink --strip-debug
 # * BusyBux built-in tar doesn't support --strip=1
 # * Maven doesn't need an installer
@@ -63,7 +69,8 @@ RUN apk add --no-cache binutils tar && \
     MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
     mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
     ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn && \
-    mvn -version
+    # use help:evalate to verify the install as this is used in other release scripts (and will seed some plugins)
+    mvn help:evaluate -Dexpression=maven.version -q -DforceStdout
 
 # Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install

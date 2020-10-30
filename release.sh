@@ -5,7 +5,7 @@ set -eu
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 java_version"
-    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15: Ex. 15.0.1_p9-r0"
+    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15 without package revision: Ex. 15.0.1_p9"
     exit 1
 fi
 
