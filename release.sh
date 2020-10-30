@@ -5,7 +5,7 @@ set -eu
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 java_version"
-    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15: Ex. 15.0.1_p9-r0"
+    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk8 without package revision: Ex. 8.252.09"
     exit 1
 fi
 
@@ -24,7 +24,7 @@ BUILDX="docker buildx build --progress plain \
 for platform in $(echo $PLATFORMS|tr -s ',' ' '); do
   tag=openzipkin/java:test-jre
   ${BUILDX} --target jre --tag ${tag} --platform=${platform} --load .
-  docker run --rm ${tag} -version
+  docker run --rm --platform=${platform} ${tag} -version
 done
 
 # If we got here, we assume the images can be trusted. Go ahead and push them
