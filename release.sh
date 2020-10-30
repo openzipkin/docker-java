@@ -25,7 +25,7 @@ for platform in $(echo $PLATFORMS|tr -s ',' ' '); do
   for target in jdk jre; do
     tag=openzipkin/java:test-${target}
     ${BUILDX} --target ${target} --tag ${tag} --platform=${platform} --load .
-    docker run --rm ${tag} -version
+    docker run --rm --platform=${platform} ${tag} -version
   done
 done
 

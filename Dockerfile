@@ -5,27 +5,6 @@
 
 # Update, but use a stable version so that there's less layer drift during multi-day releases
 ARG alpine_version=3.12.1
-FROM alpine:$alpine_version as openJDK
-
-# OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk15
-ARG java_version
-ENV JAVA_VERSION=$java_version
-
-RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
-    echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
-    PACKAGE=openjdk$(echo ${JAVA_VERSION}| cut -f1 -d.) && \
-    apk --no-cache add ${PACKAGE}=~${JAVA_VERSION} && \
-    java -version java_version
-
-ENV JAVA_HOME=/usr/lib/jvm/default-jvm/
-
-WORKDIR /java
-
-# CD into the directory in order to copy paths without symlinks
-RUN (cd ${JAVA_HOME} && cp -rp * /java/) && \
-    # Remove any symlinks as these won't resolve later
-    find . -type l -exec rm -f {} \;
-
 FROM alpine:$alpine_version as base
 
 LABEL maintainer="OpenZipkin https://zipkin.io/"
@@ -34,13 +13,17 @@ LABEL maintainer="OpenZipkin https://zipkin.io/"
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-ENV JAVA_HOME=/java
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm/
 
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
-WORKDIR ${JAVA_HOME}
+# Later installations may require more recent versions of packages such as nodejs
+RUN for repository in main testing community; do \
+      repository_url=https://dl-cdn.alpinelinux.org/alpine/edge/${repository} && \
+      grep -qF -- $repository_url /etc/apk/repositories || echo $repository_url >> /etc/apk/repositories; \
+    done
 
 # Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
 RUN apk add --no-cache java-cacerts libc6-compat && \
@@ -50,15 +33,16 @@ ENTRYPOINT ["/usr/bin/java", "-jar"]
 
 FROM base as jdk
 
-COPY --from=openJDK /java/ .
-RUN ln -s ${PWD}/bin/java /usr/bin/java && \
-    ln -s ${PWD}/bin/jar /usr/bin/jar
+# OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk15
+ARG java_version
+ENV JAVA_VERSION=$java_version
 
-# Later installations may require more recent versions of packages such as nodejs
-RUN for repository in main testing community; do \
-      repository_url=https://dl-cdn.alpinelinux.org/alpine/edge/${repository} && \
-      grep -qF -- $repository_url /etc/apk/repositories || echo $repository_url >> /etc/apk/repositories; \
-    done
+RUN PACKAGE=openjdk$(echo ${JAVA_VERSION}| cut -f1 -d.) && \
+    # use the openjdk15-jmods package, not openjdk15, to avoid clutter
+    apk --no-cache add ${PACKAGE}-jmods=~${JAVA_VERSION} ${PACKAGE}-jdk=~${JAVA_VERSION} && \
+    java -version
+
+WORKDIR ${JAVA_HOME}
 
 # * binutils is needed for some node modules and jlink --strip-debug
 # * BusyBux built-in tar doesn't support --strip=1
@@ -79,6 +63,7 @@ WORKDIR /install
 
 RUN JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2| cut -f1 -d.) && \
 # Opt out of --strip-debug when openjdk15+arm64 per https://github.com/openzipkin/docker-java/issues/34
+# This is because we cannot set the following in jlink -Djdk.lang.Process.launchMechanism=vfork
 if [[ "${JAVA_VERSION}" = "15" && "$(uname -m)" = "aarch64" ]]; then STRIP=""; else STRIP="--strip-debug"; fi && \
 # Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
 ${JAVA_HOME}/bin/jlink --vm=server --no-header-files --no-man-pages --compress=0 ${STRIP} --add-modules \
@@ -109,5 +94,7 @@ jdk.localedata --include-locales en,th\
 # Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
 FROM base as jre
 
-COPY --from=install /install/jre ${JAVA_HOME}
+WORKDIR ${JAVA_HOME}
+COPY --from=install /install/jre .
+
 RUN ln -s ${JAVA_HOME}/bin/java /usr/bin/java
