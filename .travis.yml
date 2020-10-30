@@ -25,6 +25,7 @@ before_install:
     BUILDX_URL=https://github.com/docker/buildx/releases/download/v${BUILDX_VERSION}/buildx-v${BUILDX_VERSION}.linux-${TRAVIS_CPU_ARCH}
     mkdir -p $HOME/.docker/cli-plugins
     ( cd $HOME/.docker/cli-plugins && wget -qO- $BUILDX_URL > docker-buildx && chmod 755 docker-buildx)
+    docker version
   - |
     # Enable execution of different multi-architecture containers by QEMU and binfmt_misc
     # See https://github.com/multiarch/qemu-user-static
