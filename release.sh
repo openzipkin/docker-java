@@ -5,7 +5,7 @@ set -eu
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 java_version"
-    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15: Ex. 15.0.1_p9-r0"
+    echo "  version from https://pkgs.alpinelinux.org/packages?name=openjdk15 without package revision: Ex. 15.0.1_p9"
     exit 1
 fi
 
@@ -25,7 +25,7 @@ for platform in $(echo $PLATFORMS|tr -s ',' ' '); do
   for target in jdk jre; do
     tag=openzipkin/java:test-${target}
     ${BUILDX} --target ${target} --tag ${tag} --platform=${platform} --load .
-    docker run --rm ${tag} -version
+    docker run --rm --platform=${platform} ${tag} -version
   done
 done
 
