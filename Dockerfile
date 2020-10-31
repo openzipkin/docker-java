@@ -55,7 +55,8 @@ RUN APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 
     MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
     mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
     ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn && \
-    mvn help:evaluate -Dexpression=maven.version -q -DforceStdout
+    mvn -q --batch-mode help:evaluate -Dexpression=maven.version -q -DforceStdout && \
+    mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
 
 # Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install
