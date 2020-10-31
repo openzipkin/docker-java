@@ -14,6 +14,9 @@ fi
 
 ZULU_TAG="$1"
 
-docker build --build-arg zulu_tag=${ZULU_TAG} -t "ghcr.io/openzipkin/java:${ZULU_TAG}" .
+docker build -t ghcr.io/openzipkin/java:${ZULU_TAG} \
+--build-arg zulu_tag=${ZULU_TAG} --label java-version=${ZULU_TAG} \
+--label org.opencontainers.image.source=https://github.com/openzipkin/docker-java \
+--label org.opencontainers.image.version=${ZULU_TAG} .
 
 docker push "ghcr.io/openzipkin/java:${ZULU_TAG}"
