@@ -8,17 +8,22 @@
 ARG zulu_tag=6u119-6.22.0.3
 
 FROM azul/zulu-openjdk-alpine:$zulu_tag as zuluJDK
-
-LABEL MAINTAINER OpenZipkin "http://zipkin.io/"
+ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
+LABEL maintainer=$maintainer
+LABEL org.opencontainers.image.authors=$maintainer
+LABEL org.opencontainers.image.description="Zulu on Alpine Linux"
 
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+ENV JAVA_HOME=/usr/lib/jvm/zulu6.22.0.3-jdk6.0.119-linux_x64
 
 # Java relies on /etc/nsswitch.conf. Put host files first or InetAddress.getLocalHost
 # will throw UnknownHostException as the local hostname isn't in DNS.
 RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
-ENV JAVA_HOME=/usr/lib/jvm/zulu6.22.0.3-jdk6.0.119-linux_x64
-WORKDIR ${JAVA_HOME}
+WORKDIR /java
 
 ENTRYPOINT ["java", "-jar"]
