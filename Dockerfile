@@ -7,7 +7,10 @@
 ARG alpine_version=3.12.1
 FROM alpine:$alpine_version as jre
 
-LABEL maintainer="OpenZipkin https://zipkin.io/"
+ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
+LABEL maintainer=$maintainer
+LABEL org.opencontainers.image.authors=$maintainer
+LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 
 # OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk8
 ARG java_version
