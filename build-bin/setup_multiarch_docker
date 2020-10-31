@@ -13,7 +13,7 @@
 # the License.
 #
 
-set -uex
+set -ue
 
 # Ensures Docker buildx is available and can build multi-architecture
 #
