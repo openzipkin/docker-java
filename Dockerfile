@@ -7,7 +7,10 @@
 ARG alpine_version=3.12.1
 FROM alpine:$alpine_version as base
 
-LABEL maintainer="OpenZipkin https://zipkin.io/"
+ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
+LABEL maintainer=$maintainer
+LABEL org.opencontainers.image.authors=$maintainer
+LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 
 # OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk15
 ARG java_version
@@ -94,6 +97,8 @@ jdk.localedata --include-locales en,th\
 
 # Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
 FROM base as jre
+
+LABEL description="Minimal OpenJDK JRE on Alpine Linux"
 
 COPY --from=install /install/jre/ ${JAVA_HOME}/
 
