@@ -16,7 +16,6 @@ Next, verify the built image matches that `zulu_tag`.
 
 For example, given the following output from `docker run --rm openzipkin/java:test-jre -version`...
 ```
-<<<<<<< HEAD
 openjdk version "1.6.0-119"
 OpenJDK Runtime Environment (Zulu 6.22.0.3-linux64) (build 1.6.0-119-b119)
 OpenJDK 64-Bit Server VM (Zulu 6.22.0.3-linux64) (build 23.77-b119, mixed mode)
