@@ -98,7 +98,7 @@ jdk.localedata --include-locales en,th\
 # Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
 FROM base as jre
 
-LABEL description="Minimal OpenJDK JRE on Alpine Linux"
+LABEL org.opencontainers.image.description="Minimal OpenJDK JRE on Alpine Linux"
 
 COPY --from=install /install/jre/ ${JAVA_HOME}/
 
