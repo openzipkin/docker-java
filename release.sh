@@ -15,6 +15,7 @@ PLATFORMS="linux/amd64,linux/arm64"
 
 BUILDX="docker buildx build --progress plain \
 --build-arg alpine_version=${ALPINE_VERSION} --label alpine-version=${ALPINE_VERSION} \
+--build-arg java_major_version=$(echo "${JAVA_VERSION}"| cut -f1 -d.) \
 --build-arg java_version=${JAVA_VERSION} --label java-version=${JAVA_VERSION}"
 
 # We need to build separately per arch to test to use -load https://github.com/docker/buildx/issues/59
