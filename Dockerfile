@@ -5,16 +5,19 @@
 
 # Update, but use a stable version so that there's less layer drift during multi-day releases
 ARG alpine_version=3.12.1
-FROM alpine:$alpine_version as jre
+# Use a quay.io mirror to prevent build outages due to Docker Hub pull quotas
+FROM quay.io/app-sre/alpine:$alpine_version as base
 
 ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
 LABEL maintainer=$maintainer
 LABEL org.opencontainers.image.authors=$maintainer
-LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
+LABEL org.opencontainers.image.description="OpenJDK provided by IcedTea on Alpine Linux"
 
 # OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk8
 ARG java_version
 ENV JAVA_VERSION=$java_version
+ARG java_major_version=8
+ENV JAVA_MAJOR_VERSION=$java_major_version
 
 # Default to UTF-8 file.encoding
 ENV LANG en_US.UTF-8
@@ -34,13 +37,36 @@ RUN for repository in main testing community; do \
       grep -qF -- $repository_url /etc/apk/repositories || echo $repository_url >> /etc/apk/repositories; \
     done
 
-# Install OS packages that support most software we build
-# * libc6-compat: BoringSSL for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-RUN PACKAGE=openjdk$(echo ${JAVA_VERSION}| cut -f1 -d.)-jre && \
-    # Allow boringssl for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
-    apk --no-cache add ${PACKAGE}=~${JAVA_VERSION} libc6-compat && \
-    java -version
-
 WORKDIR /java
 
 ENTRYPOINT ["java", "-jar"]
+
+FROM base as jdk
+
+# Install OS packages that support most software we build
+# * openjdk8: includes openjdk8, but not docs or demos
+# * tar: BusyBux built-in tar doesn't support --strip=1
+# * libc6-compat: BoringSSL for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN PACKAGE=openjdk${JAVA_MAJOR_VERSION} && \
+    apk --no-cache add openjdk8=~${JAVA_VERSION} tar libc6-compat && \
+    java -version
+
+# Add Maven and invoke help:evaluate to verify the install as this is used in other release scripts
+ARG maven_version=3.6.3
+RUN APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp') && \
+    MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
+    mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
+    ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn && \
+    mvn -q --batch-mode help:evaluate -Dexpression=maven.version -q -DforceStdout && \
+    mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
+
+# Our JRE image is minimal: Only Alpine, libc6-compat and a JRE
+FROM base as jre
+
+LABEL org.opencontainers.image.description="OpenJDK JRE provided by IcedTea on Alpine Linux"
+
+# Finalize JRE install:
+# * openjdk8-jre: only the JRE, not the JDK
+# * libc6-compat: BoringSSL for Netty per https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty
+RUN apk add --no-cache openjdk8-jre=~${JAVA_VERSION} libc6-compat && \
+    java -version

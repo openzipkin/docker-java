@@ -22,12 +22,17 @@ BUILDX="docker buildx build --progress plain \
 # We need to build separately per arch to test to use -load https://github.com/docker/buildx/issues/59
 # Testing multiple archs likely requires qemu: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 for platform in $(echo $PLATFORMS|tr -s ',' ' '); do
-  tag=openzipkin/java:test-jre
-  ${BUILDX} --target jre --tag ${tag} --platform=${platform} --load .
-  docker run --rm --platform=${platform} ${tag} -version
+  for target in jdk jre; do
+    tag=openzipkin/java:test-${target}
+    ${BUILDX} --target ${target} --tag ${tag} --platform=${platform} --load .
+    docker run --rm --platform=${platform} ${tag} -version
+  done
 done
 
 # If we got here, we assume the images can be trusted. Go ahead and push them
-tag=ghcr.io/openzipkin/java:${JAVA_VERSION}-jre
-echo Pushing image ${tag}
-${BUILDX} --target jre --tag ${tag} --platform=${PLATFORMS} --push .
+for target in jdk jre; do
+  tag=ghcr.io/openzipkin/java:${JAVA_VERSION}
+  if [ "$target" = "jre" ]; then tag=${tag}-jre; fi
+  echo Pushing image ${tag}
+  ${BUILDX} --target ${target} --tag ${tag} --platform=${PLATFORMS} --push .
+done
