@@ -5,7 +5,8 @@
 
 # Update, but use a stable version so that there's less layer drift during multi-day releases
 ARG alpine_version=3.12.1
-FROM alpine:$alpine_version as base
+# Use a quay.io mirror to prevent build outages due to Docker Hub pull quotas
+FROM quay.io/app-sre/alpine:$alpine_version as base
 
 ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
 LABEL maintainer=$maintainer
