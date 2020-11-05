@@ -27,8 +27,12 @@ if [ "$ARCH" != "x86_64" ]; then
   exit 1
 fi
 
-# Enable experimental features on the server (multi-arch)
-echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+# Enable experimental features on the server (multi-arch) and add Google's Docker Hub mirror
+# * See https://cloud.google.com/container-registry/docs/pulling-cached-images
+echo '{
+  "experimental":true,
+  "registry-mirrors": ["https://mirror.gcr.io"]
+}' | sudo tee /etc/docker/daemon.json
 sudo service docker restart
 # Enable experimental client features (eg docker buildx)
 mkdir -p ${HOME}/.docker && echo '{"experimental":"enabled"}' > ${HOME}/.docker/config.json

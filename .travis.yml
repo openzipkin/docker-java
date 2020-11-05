@@ -2,35 +2,45 @@
 
 # We need a full VM so that testcontainers can use Docker
 # See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
-arch: amd64           # arm64 is LXD containers which we can't use because we run Docker tests
 os: linux             # required for arch different than amd64
 dist: focal           # newest available distribution
-
 language: bash
 
 services:
   - docker
 
-# Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
-# controlled by branch (typically only master). Check to see if a well-known env is available
-# before attempting to log in.
 before_install:
   - |
-    if [[ -n "$GH_USER" ]]; then
-      # re-use this condition to control if we prepare Docker for multi-arch
-      build-bin/setup_multiarch_docker
+    # Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
+    # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
+    echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
+    sudo service docker restart
 
-      # Log in to Docker Hub for releasing the image
-      echo "$GH_TOKEN"| docker login ghcr.io -u "$GH_USER" --password-stdin
-    fi
+jobs:
+  include:
+    - name: release
+      arch: amd64
+      script:
+        - |
+          # re-use this condition to control if we prepare Docker for multi-arch
+          build-bin/setup_multiarch_docker
 
-script: ./release.sh $TRAVIS_TAG
+          # Log in to Docker Hub for releasing the image
+          echo "$GH_TOKEN"| docker login ghcr.io -u "$GH_USER" --password-stdin
 
-# Run only for tags as "on: tags: true" will still build master!
-# Heuristic: tags describe versions, so they'll start with a number
-branches:
-  only:
-    - /^[0-9]/
+          # Push both images
+          DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG} ./build_image ${TRAVIS_TAG} jdk push &&
+          DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG}-jre ./build_image ${TRAVIS_TAG} jre push
+      # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
+      # controlled by branch (typically only master). Check to see if a well-known env is available
+      # before attempting to log in.
+      if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
+    - name: test amd64
+      arch: amd64
+      script: ./build_image && docker run --rm openzipkin/java:test -version
+    - name: test arm64
+      arch: arm64
+      script: ./build_image && docker run --rm openzipkin/java:test -version
 
 notifications:
   webhooks:
