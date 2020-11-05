@@ -3,10 +3,10 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# Update, but use a stable version so that there's less layer drift during multi-day releases
-ARG alpine_version=3.12.1
-# Use a quay.io mirror to prevent build outages due to Docker Hub pull quotas
-FROM quay.io/app-sre/alpine:$alpine_version as base
+ARG alpine_version
+# Ensure this is a multi-arch image. For example, https://quay.io/repository/app-sre/alpine is not!
+# TODO: this is a Docker Hub image, which can result in a build outage
+FROM alpine:$alpine_version as base
 
 ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
 LABEL maintainer=$maintainer
@@ -16,7 +16,7 @@ LABEL org.opencontainers.image.description="OpenJDK provided by IcedTea on Alpin
 # OpenJDK Package version from here https://pkgs.alpinelinux.org/packages?name=openjdk8
 ARG java_version
 ENV JAVA_VERSION=$java_version
-ARG java_major_version=8
+ARG java_major_version
 ENV JAVA_MAJOR_VERSION=$java_major_version
 
 # Default to UTF-8 file.encoding
@@ -52,7 +52,8 @@ RUN PACKAGE=openjdk${JAVA_MAJOR_VERSION} && \
     java -version
 
 # Add Maven and invoke help:evaluate to verify the install as this is used in other release scripts
-ARG maven_version=3.6.3
+ARG maven_version
+LABEL maven-version=$maven_version
 RUN APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp') && \
     MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
     mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \

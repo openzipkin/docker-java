@@ -1,0 +1,59 @@
+#!/bin/sh
+
+set -ue
+
+DOCKERFILE_PATH=Dockerfile
+
+if ! test -f ${DOCKERFILE_PATH}; then
+  echo Please execute this script from the repository root
+  exit 1
+fi
+
+# Update, but use a stable version so that there's less layer drift during multi-day releases
+ALPINE_VERSION=3.12.1
+MAVEN_VERSION=3.6.3
+# version from https://pkgs.alpinelinux.org/packages?name=openjdk8 without package revision
+JAVA_VERSION=${1:-8.252.09}
+DOCKER_TARGET=${2:-jre}
+OP=${3:-load}
+
+DOCKER_TAG=${DOCKER_TAG:-openzipkin/java:test}
+# Platforms to eventually push to the registry
+PLATFORMS="linux/amd64,linux/arm64"
+
+DOCKER_ARGS="-f ${DOCKERFILE_PATH} --target ${DOCKER_TARGET} --tag ${DOCKER_TAG} \
+--build-arg alpine_version=${ALPINE_VERSION} --label alpine-version=${ALPINE_VERSION} \
+--build-arg java_major_version=$(echo "${JAVA_VERSION}"| cut -f1 -d.) \
+--build-arg java_version=${JAVA_VERSION} --label java-version=${JAVA_VERSION} \
+--build-arg maven_version=${MAVEN_VERSION} \
+--label org.opencontainers.image.source=https://github.com/openzipkin/docker-java \
+--label org.opencontainers.image.version=${JAVA_VERSION} ."
+
+# Avoid buildx for two reasons:
+#  * It only supports one platform/arch on load https://github.com/docker/buildx/issues/59
+#  * It would pull Docker Hub for moby/buildkit or multiarch/qemu-user-static images, using up quota
+if [ "${OP}" = "load" ]; then
+  echo "Building image ${DOCKER_TAG} with java_version ${JAVA_VERSION}"
+  docker build ${DOCKER_ARGS}
+  exit $?
+fi
+
+if [ "${OP}" != "push" ]; then
+  echo "Invalid OP: ${OP}, Ex. load or push"
+  exit 1
+fi
+
+# This can be less manual in the future, for example checking buildx to see what it can do.
+ARCH=${ARCH:-$(uname -m)}
+case ${ARCH} in
+  x86_64* )
+    ;;
+  amd64* )
+    ;;
+  * )
+    echo Pushing platforms ${PLATFORMS} with arch ${ARCH} is not yet supported.
+    exit 1
+esac
+
+echo "Pushing image ${DOCKER_TAG} with platforms ${PLATFORMS} and Zipkin version ${JAVA_VERSION}"
+docker buildx build --progress plain --platform=${PLATFORMS} ${DOCKER_ARGS} --push
