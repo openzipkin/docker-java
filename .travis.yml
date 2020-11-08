@@ -15,10 +15,26 @@ before_install:
     # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
     echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
+script: ./build_image && docker run --rm openzipkin/java:test -version
+
+# Test on both archs
+arch:
+  - amd64
+  - arm64
+
+stages:
+  # The default stage is test, which runs on all architectures
+  - test
+  - name: push
+    # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
+    # controlled by branch (typically only master). Check to see if a well-known env is available
+    # before attempting to log in.
+    if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
 
 jobs:
   include:
-    - name: release
+    - stage: push
+      name: "Build and push multi-architecture Docker images"
       arch: amd64
       script:
         - |
@@ -31,16 +47,6 @@ jobs:
           # Push both images
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG} ./build_image ${TRAVIS_TAG} jdk push &&
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG}-jre ./build_image ${TRAVIS_TAG} jre push
-      # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
-      # controlled by branch (typically only master). Check to see if a well-known env is available
-      # before attempting to log in.
-      if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
-    - name: test amd64
-      arch: amd64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
-    - name: test arm64
-      arch: arm64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
 
 notifications:
   webhooks:
