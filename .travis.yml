@@ -16,9 +16,18 @@ before_install:
     echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
 
+# Test on both archs
+arch:
+  - amd64
+  - arm64
+
 jobs:
   include:
-    - name: release
+    - stage: test
+      name: "Build and run Docker image"
+      script: ./build_image && docker run --rm openzipkin/java:test -version
+    - stage: push
+      name: "Build and push multi-architecture Docker images"
       arch: amd64
       script:
         - |
@@ -35,12 +44,6 @@ jobs:
       # controlled by branch (typically only master). Check to see if a well-known env is available
       # before attempting to log in.
       if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
-    - name: test amd64
-      arch: amd64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
-    - name: test arm64
-      arch: arm64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
 
 notifications:
   webhooks:
