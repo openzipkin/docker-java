@@ -15,6 +15,7 @@ before_install:
     # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
     echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
+script: ./build_image && docker run --rm openzipkin/java:test -version
 
 # Test on both archs
 arch:
@@ -22,6 +23,7 @@ arch:
   - arm64
 
 stages:
+  # The default stage is test, which runs on all architectures
   - test
   - name: push
     # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
@@ -31,9 +33,6 @@ stages:
 
 jobs:
   include:
-    - stage: test
-      name: "Build and run Docker image"
-      script: ./build_image && docker run --rm openzipkin/java:test -version
     - stage: push
       name: "Build and push multi-architecture Docker images"
       arch: amd64
