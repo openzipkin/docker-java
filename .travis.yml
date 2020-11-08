@@ -21,6 +21,14 @@ arch:
   - amd64
   - arm64
 
+stages:
+  - test
+  - name: push
+    # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
+    # controlled by branch (typically only master). Check to see if a well-known env is available
+    # before attempting to log in.
+    if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
+
 jobs:
   include:
     - stage: test
@@ -40,10 +48,6 @@ jobs:
           # Push both images
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG} ./build_image ${TRAVIS_TAG} jdk push &&
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG}-jre ./build_image ${TRAVIS_TAG} jre push
-      # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
-      # controlled by branch (typically only master). Check to see if a well-known env is available
-      # before attempting to log in.
-      if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
 
 notifications:
   webhooks:
