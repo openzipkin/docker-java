@@ -17,10 +17,10 @@ before_install:
     sudo service docker restart
 script: ./build_image && docker run --rm openzipkin/java:test -version
 
-# Test on both archs
+# Test on both archs (using the faster graviton2 for arm64)
 arch:
   - amd64
-  - arm64
+  - arm64-graviton2
 
 stages:
   # The default stage is test, which runs on all architectures
