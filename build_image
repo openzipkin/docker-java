@@ -13,7 +13,7 @@ fi
 ALPINE_VERSION=3.12.1
 MAVEN_VERSION=3.6.3
 # version from https://pkgs.alpinelinux.org/packages?name=openjdk8 without package revision
-JAVA_VERSION=${1:-8.252.09}
+JAVA_VERSION=${1:-8.272.10}
 DOCKER_TARGET=${2:-jre}
 OP=${3:-load}
 
