@@ -1,3 +1,6 @@
+[![Gitter chat](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/openzipkin/zipkin)
+[![Build Status](https://travis-ci.com/openzipkin/docker-java.svg?branch=master)](https://travis-ci.com/openzipkin/docker-java)
+
 `ghcr.io/openzipkin/java` is a minimal Docker image based on the OpenJDK [Alpine Linux](https://hub.docker.com/_/alpine) package.
 
 On GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) there will be two tags
@@ -27,4 +30,4 @@ OpenJDK 64-Bit Server VM (build 15.0.1+9-alpine-r0, mixed mode)
 The arg to `build_image` should be `15.0.1_p9`
 
 To release the image, push a tag named the same as the arg to `build_image` (ex `15.0.1_p9`).
-This will trigger a [Travis CI](https://travis-ci.org/openzipkin/docker-java) job to push the image.
+This will trigger a [Travis CI](https://travis-ci.com/openzipkin/docker-java) job to push the image.
