@@ -1,25 +1,60 @@
 # Run `travis lint` when changing this file to avoid breaking the build.
 
-# We need a full VM so that testcontainers can use Docker
 # See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
-os: linux             # required for arch different than amd64
-dist: focal           # newest available distribution
+os: linux   # required for arch different than amd64
+dist: focal # newest available distribution
+
 language: bash
+services: docker
 
-services:
-  - docker
-
-before_install:
+# Prevent test build of a documentation-only change.
+#
+# if: conditions are preferred as they obviate job creation. However, they can only use
+# pre-defined env variables or globals that can be evaluated statically. The other way to skip
+# is to exit early. We do that here to prevent overhead of running tests that only include Markdown
+# (documentation) updates.
+_terminate_if_only_docs: &terminate_if_only_docs
   - |
-    # Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
-    # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
+    if [ -n "${TRAVIS_COMMIT_RANGE}" ] && ! git diff --name-only "${TRAVIS_COMMIT_RANGE}" -- | grep -qv '\.md$'; then
+      echo "Stopping job as changes only affect documentation (ex. README.md)"
+      travis_terminate 0
+    fi
+
+# Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
+# * See https://cloud.google.com/container-registry/docs/pulling-cached-images
+install:
+  - |
     echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
 
+# Build and test the Docker image by running the equiv of `java -version`
+script: ./build_image && docker run --rm openzipkin/java:test -version
+
+stages:
+  # We run tests on non-tagged pushes to master and pull requests targeted at the release branch.
+  - name: test
+    if: branch IN (master, JDK1_6, JDK1_7, JDK1_8) AND tag IS blank AND type IN (push, pull_request)
+  - name: push
+    # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
+    # controlled by branch (typically only master). Check to see if a well-known env is available
+    # before attempting to log in.
+    if: type IN (push) and tag =~ ^[0-9] and env(GH_USER) IS present
+
 jobs:
   include:
-    - name: release
-      arch: amd64
+    - stage: test
+      name: "Build and test Docker image [amd64]"
+      arch: amd64 # Ensure we test our images on the default platform, amd64, as most use this.
+      before_install: *terminate_if_only_docs
+    - stage: test
+      name: "Build and test Docker image [arm64]"
+      arch: arm64-graviton2 # Runs in AWS cloud and significantly faster than arm64
+      virt: lxd             # LXD containers where possible as they boot faster than full VMs
+      group: edge           # Needed for graviton2: https://blog.travis-ci.com/2020-09-11-arm-on-aws
+      before_install: *terminate_if_only_docs
+    - stage: push
+      name: "Build and push multi-architecture Docker images"
+      arch: amd64 # Not arm64 for multi-platform Docker builds (qemu is amd64->arm64, not vice versa)
       script:
         - |
           # re-use this condition to control if we prepare Docker for multi-arch
@@ -31,16 +66,6 @@ jobs:
           # Push both images
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG} ./build_image ${TRAVIS_TAG} jdk push &&
           DOCKER_TAG=ghcr.io/openzipkin/java:${TRAVIS_TAG}-jre ./build_image ${TRAVIS_TAG} jre push
-      # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
-      # controlled by branch (typically only master). Check to see if a well-known env is available
-      # before attempting to log in.
-      if: 'type IN (push) and tag =~ /^[0-9]/ and env(GH_USER) IS present'
-    - name: test amd64
-      arch: amd64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
-    - name: test arm64
-      arch: arm64
-      script: ./build_image && docker run --rm openzipkin/java:test -version
 
 notifications:
   webhooks:
