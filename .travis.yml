@@ -15,11 +15,12 @@ services:
 # pre-defined env variables or globals that can be evaluated statically. The other way to skip
 # is to exit early. We do that here to prevent overhead of running tests that only include Markdown
 # (documentation) updates.
-&terminate_if_only_docs _terminate_if_only_docs: |
-  if [ -n "${TRAVIS_COMMIT_RANGE}" ] && ! git diff --name-only "${TRAVIS_COMMIT_RANGE}" -- | grep -qv '\.md$'; then
-    echo "Stopping job as changes only affect documentation (ex. README.md)"
-    travis_terminate 0
-  fi
+_terminate_if_only_docs: &terminate_if_only_docs
+  - |
+    if [ -n "${TRAVIS_COMMIT_RANGE}" ] && ! git diff --name-only "${TRAVIS_COMMIT_RANGE}" -- | grep -qv '\.md$'; then
+      echo "Stopping job as changes only affect documentation (ex. README.md)"
+      travis_terminate 0
+    fi
 
 # Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
 # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
