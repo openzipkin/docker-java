@@ -21,13 +21,14 @@ services:
     travis_terminate 0
   fi
 
+# Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
+# * See https://cloud.google.com/container-registry/docs/pulling-cached-images
 install:
   - |
-    # Add Google's mirror as our base image is from Docker Hub, which has a pull limit.
-    # * See https://cloud.google.com/container-registry/docs/pulling-cached-images
     echo '{ "registry-mirrors": ["https://mirror.gcr.io"] }' | sudo tee /etc/docker/daemon.json
     sudo service docker restart
 
+# Build and test the Docker image by running the equiv of `java -version`
 script: ./build_image && docker run --rm openzipkin/java:test -version
 
 stages:
