@@ -5,9 +5,7 @@ os: linux   # required for arch different than amd64
 dist: focal # newest available distribution
 
 language: bash
-
-services:
-  - docker
+services: docker
 
 # Prevent test build of a documentation-only change.
 #
@@ -33,9 +31,9 @@ install:
 script: ./build_image && docker run --rm openzipkin/java:test -version
 
 stages:
-  # We run tests on non-tagged pushes to master and pull requests targeted at the master branch.
+  # We run tests on non-tagged pushes to master and pull requests targeted at the release branch.
   - name: test
-    if: branch = master AND tag IS blank AND type IN (push, pull_request)
+    if: branch IN (master, JDK1_6, JDK1_7, JDK1_8) AND tag IS blank AND type IN (push, pull_request)
   - name: push
     # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
     # controlled by branch (typically only master). Check to see if a well-known env is available
