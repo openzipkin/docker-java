@@ -1,5 +1,5 @@
 [![Gitter chat](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/openzipkin/zipkin)
-![Build Status](https://github.com/openzipkin/docker-java/workflows/test/badge.svg)
+[![Build Status](https://github.com/openzipkin/docker-java/workflows/test/badge.svg)](https://github.com/openzipkin/docker-java/actions?query=workflow%3Atest)
 
 `ghcr.io/openzipkin/java` is a minimal Docker image based on the OpenJDK [Alpine Linux](https://github.com/openzipkin/docker-alpine) package.
 
