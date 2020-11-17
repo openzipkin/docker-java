@@ -19,7 +19,7 @@ OP=${3:-load}
 
 DOCKER_TAG=${DOCKER_TAG:-openzipkin/java:test}
 # Platforms to eventually push to the registry
-PLATFORMS="linux/amd64,linux/arm64"
+PLATFORMS="linux/amd64,linux/arm64,linux/s390x"
 
 DOCKER_ARGS="-f ${DOCKERFILE_PATH} --target ${DOCKER_TARGET} --tag ${DOCKER_TAG} \
 --build-arg alpine_version=${ALPINE_VERSION} --label alpine-version=${ALPINE_VERSION} \
