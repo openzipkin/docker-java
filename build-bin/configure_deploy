@@ -4,7 +4,6 @@ set -ue
 
 # This script sets up anything needed for `./deploy`. Do not assume `configure_test` was called.
 #
-# This script primarily helps `.travis.yml`, "deploy.yml" and `RELEASE.md` contain nearly the same
-# contents, even if certain OpenZipkin projects need slight adjustments here.
+# See [README.md] for an explanation of this and how CI should use it.
 
 build-bin/docker/configure_docker_push

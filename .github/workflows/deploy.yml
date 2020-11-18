@@ -8,8 +8,7 @@ name: deploy
 # See https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
 on:
   push:
-    # Java versions sometimes include a classifier. Ex. 8.272.10 vs 15.0.1_p9
-    tags: '[0-9]+.[0-9]+.[0-9]+**'
+    tags: '[0-9]+.[0-9]+.[0-9]+**'  # Ex. 8.272.10 or 15.0.1_p9
     branches: master
 
 jobs:

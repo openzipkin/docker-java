@@ -4,13 +4,7 @@ set -ue
 
 # This script deploys a master or release version.
 #
-# In CI..
-#  * trigger pattern for release: tag =~ /^[0-9]+\.[0-9]+\.[0-9]+/
-#    * skip pull requests
-#  * build-bin/configure_deploy must be called before invoking this.
-#
-# This script primarily helps `.travis.yml`, "deploy.yml" and `RELEASE.md` contain nearly the same
-# contents, even if certain OpenZipkin projects need slight adjustments here.
+# See [README.md] for an explanation of this and how CI should use it.
 
 version=${1:-master}
 if [ "${version}" != "master" ]; then
