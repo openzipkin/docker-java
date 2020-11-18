@@ -16,9 +16,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
-          # license-maven-plugin needs the full history to generate copyright
-          # year range. Ex. 2013-2020. Don't do a shallow clone!
-          fetch-depth: 0
+          fetch-depth: 1  # only needed to get the sha label
       - name: Cache docker
         uses: actions/cache@v2
         with:
