@@ -78,10 +78,9 @@ jobs:
 A simplest Travis `test` job configures tests in `install` and runs them as `script`, but only on
 relevant event conditions.
 
-The `if:` section obviates job creation and resource usage for irrelevant events. Notably, Travis
-does not support file conditions. To skip documentation-only commits will cost job creation, but
-ideally skip in less than a minute (10 credit cost). Do things like this in `before_install`, and
-keep in mind that Travis supports YAML references.
+The `if:` section obviates job creation and resource usage for irrelevant events. Travis does not
+support file conditions. A `before_install` step to skip documentation-only commits will likely
+complete in less than a minute (10 credit cost).
 
 Here's a partial `.travis.yml` including only the aspects mentioned above.
 ```yaml
@@ -122,11 +121,12 @@ The `on:` section obviates job creation and resource usage for irrelevant events
 cannot implement "master, except documentation only-commits" in the same file. Hence, deployments of
 master will happen even on README change.
 
-Here's a partial `deploy.yml` including only the aspects mentioned above.
+Here's a partial `deploy.yml` including only the aspects mentioned above. Notice env variables are
+explicitly defined and `on.tags` is a [glob pattern](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet).
 ```yaml
 on:
   push:
-    tags: '[0-9]+\.[0-9]+\.[0-9]+'
+    tags: '[0-9]+.[0-9]+.[0-9]+**'  # Ex. 8.272.10 or 15.0.1_p9
     branches: master
 
 jobs:
@@ -145,19 +145,21 @@ jobs:
         # GITHUB_REF will be refs/heads/master or refs/tags/1.2.3
         run: build-bin/deploy $(echo ${GITHUB_REF} | cut -d/ -f 3)
 ```
-
+'[0-9]+.[0-9]+.[0-9]+**'
 ### Example Travis setup
 `.travis.yml` is a monolithic configuration file broken into stages. This means `test` and `deploy`
 are in the same file. A simplest Travis `deploy` stage has two jobs: one for master pushes and
 another for version tags. These jobs are controlled by event conditions.
 
-The `if:` section obviates job creation and resource usage for irrelevant events. Notably, Travis
-does not support file conditions. To skip documentation-only commits will cost job creation, but
-ideally skip in less than a minute (10 credit cost).
+The `if:` section obviates job creation and resource usage for irrelevant events. Travis does not
+support file conditions. A `before_install` step to skip documentation-only commits will likely
+complete in less than a minute (10 credit cost).
  
-As billing is by the minute, it is most cost effective to combine test and deploy on master commit.
+As billing is by the minute, it is most cost effective to combine test and deploy on master push.
 
-Here's a partial `.travis.yml` including only the aspects mentioned above. 
+Here's a partial `.travis.yml` including only the aspects mentioned above. Notice YAML anchors work
+in Travis and `tag =~` [condition](https://github.com/travis-ci/travis-conditions) is a regular
+expression.
 ```yaml
 git:
   depth: false  # full git history for license check, and doc-only skipping 
@@ -186,7 +188,8 @@ jobs:
         - if [ "${SHOULD_DEPLOY}" != "true" ]; then travis_terminate 0; fi
         - travis_wait ./build-bin/deploy master
     - stage: deploy
-      if: tag =~ /^[0-9]+\.[0-9]+\.[0-9]+$/ AND type = push AND env(GH_TOKEN) IS present
+      # Ex. 8.272.10 or 15.0.1_p9
+      if: tag =~ /^[0-9]+\.[0-9]+\.[0-9]+/ AND type = push AND env(GH_TOKEN) IS present
       install: ./build-bin/configure_deploy
       script: ./build-bin/deploy ${TRAVIS_TAG}
 ```
