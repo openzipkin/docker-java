@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -ue
+
+# This script deploys a master or release version.
+#
+# In CI..
+#  * trigger pattern for release: tag =~ /^[0-9]+\.[0-9]+\.[0-9]+/
+#    * skip pull requests
+#  * build-bin/configure_deploy must be called before invoking this.
+#
+# This script primarily helps `.travis.yml`, "deploy.yml" and `RELEASE.md` contain nearly the same
+# contents, even if certain OpenZipkin projects need slight adjustments here.
+
+version=${1:-master}
+if [ "${version}" != "master" ]; then
+  export JAVA_VERSION=${version}
+fi
+
+# Base layers are not pushed to Docker Hub (docker.io)
+export DOCKER_RELEASE_REPOS=ghcr.io
+export DOCKER_FILE=Dockerfile
+
+DOCKER_TARGET=jdk DOCKER_TAGS=${version} build-bin/docker/docker_push openzipkin/java ${version}
+DOCKER_TARGET=jre DOCKER_TAGS=${version}-jre build-bin/docker/docker_push openzipkin/java ${version}

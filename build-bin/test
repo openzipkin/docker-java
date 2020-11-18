@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -ue
+
+# This script runs the tests of the project.
+#
+# In CI..
+#  * trigger pattern: tag IS blank
+#    * skip documentation-only commits (paths-ignore: '**/*.md')
+#  * build-bin/configure_test must be called before invoking this.
+#
+# This script primarily helps `.travis.yml` and `test.yml` contain nearly the same contents, even if
+# certain OpenZipkin projects need slight adjustments here.
+
+build-bin/build
+docker run --rm openzipkin/java:test -version
+docker run --rm openzipkin/java:test-jre -version

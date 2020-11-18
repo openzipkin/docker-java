@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -ue
+
+# This script sets up anything needed for `./test`. This should not login to anything, as that
+# should be done in `configure_deploy`.
+#
+# This script primarily helps `.travis.yml` and `test.yml` contain nearly the same contents, even if
+# certain OpenZipkin projects need slight adjustments here.
+
+build-bin/docker/configure_docker
