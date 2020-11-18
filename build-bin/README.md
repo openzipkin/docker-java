@@ -75,7 +75,7 @@ jobs:
 
 ### Example Travis setup
 `.travis.yml` is a monolithic configuration file broken into stages, of which the default is "test".
-A simplest Travis `test` job configures tests in as `install` and runs them as `script`, but only on
+A simplest Travis `test` job configures tests in `install` and runs them as `script`, but only on
 relevant event conditions.
 
 The `if:` section obviates job creation and resource usage for irrelevant events. Notably, Travis
