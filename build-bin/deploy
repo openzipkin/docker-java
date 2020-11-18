@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -ue
+
+# This script deploys a master or release version.
+#
+# See [README.md] for an explanation of this and how CI should use it.
+
+version=${1:-master}
+if [ "${version}" != "master" ]; then
+  export JAVA_VERSION=${version}
+fi
+
+# Base layers are not pushed to Docker Hub (docker.io)
+export DOCKER_RELEASE_REPOS=ghcr.io
+export DOCKER_FILE=Dockerfile
+
+DOCKER_TARGET=jdk DOCKER_TAGS=${version} build-bin/docker/docker_push openzipkin/java ${version}
+DOCKER_TARGET=jre DOCKER_TAGS=${version}-jre build-bin/docker/docker_push openzipkin/java ${version}
