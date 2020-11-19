@@ -26,7 +26,7 @@ Build the `Dockerfile` using the current version without the revision classifier
  * https://pkgs.alpinelinux.org/packages?name=openjdk15
 ```bash
 # Note 15.0.1_p9 not 15.0.1_p9-r0!
-./build-bin/build 15.0.1_P9
+./build-bin/build 15.0.1_p9
 ```
 
 Next, verify the built image matches that version:
@@ -37,5 +37,5 @@ OpenJDK Runtime Environment (build 15.0.1+9-alpine-r0)
 OpenJDK 64-Bit Server VM (build 15.0.1+9-alpine-r0, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `15.0.1_P9`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `15.0.1_p9`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
