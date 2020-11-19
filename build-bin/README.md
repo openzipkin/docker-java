@@ -66,7 +66,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # full git history
+          fetch-depth: 0  # full git history for license check
       - name: Test
         run: |
           build-bin/configure_test

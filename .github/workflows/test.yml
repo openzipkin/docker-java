@@ -21,16 +21,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
-          # license-maven-plugin needs the full history to generate copyright
-          # year range. Ex. 2013-2020. Don't do a shallow clone!
-          fetch-depth: 0
+          fetch-depth: 0  # full git history for license check
       - name: Cache docker
         uses: actions/cache@v2
         with:
           path: ~/.docker
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: ${{ runner.os }}-docker
+      - name: Configure Test
+        run: build-bin/configure_test
       - name: Test
-        run: |
-          build-bin/configure_test
-          build-bin/test
+        run: build-bin/test

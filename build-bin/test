@@ -6,6 +6,10 @@ set -ue
 #
 # See [README.md] for an explanation of this and how CI should use it.
 
+echo "Building Docker image..."
 build-bin/build
+
+echo "Verifying Docker image..."
+# Invoke the version command to ensure arch matches
 docker run --rm openzipkin/java:test -version
 docker run --rm openzipkin/java:test-jre -version
