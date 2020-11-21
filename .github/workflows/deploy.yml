@@ -19,14 +19,13 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1  # only needed to get the sha label
-      - name: Cache docker
+      - name: Cache Docker
         uses: actions/cache@v2
         with:
           path: ~/.docker
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: ${{ runner.os }}-docker
-      - name: Configure Deploy
-        run: build-bin/configure_deploy
+      - name: Deploy
         env:
           # GH_USER=<user that created GH_TOKEN>
           GH_USER: ${{ secrets.GH_USER }}
@@ -35,6 +34,6 @@ jobs:
           #   - create via https://github.com/settings/tokens
           #   - needs repo:status, public_repo, write:packages, delete:packages
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      - name: Deploy
-        # GITHUB_REF will be refs/heads/master or refs/tags/N.M.L
-        run: build-bin/deploy $(echo ${GITHUB_REF} | cut -d/ -f 3)
+        run: |  # GITHUB_REF will be refs/heads/master or refs/tags/N.M.L
+          build-bin/configure_deploy &&
+          build-bin/deploy $(echo ${GITHUB_REF} | cut -d/ -f 3)

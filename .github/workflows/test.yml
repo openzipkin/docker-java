@@ -21,14 +21,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # full git history for license check
-      - name: Cache docker
+          fetch-depth: 1  # only needed to get the sha label
+      - name: Cache Docker
         uses: actions/cache@v2
         with:
           path: ~/.docker
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: ${{ runner.os }}-docker
-      - name: Configure Test
-        run: build-bin/configure_test
       - name: Test
-        run: build-bin/test
+        run: build-bin/configure_test && build-bin/test
