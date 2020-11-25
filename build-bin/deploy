@@ -15,5 +15,6 @@ fi
 export DOCKER_RELEASE_REPOS=ghcr.io
 export DOCKER_FILE=Dockerfile
 
+# Don't make latest tag
 DOCKER_TARGET=jdk DOCKER_TAGS=${version} build-bin/docker/docker_push openzipkin/java ${version}
 DOCKER_TARGET=jre DOCKER_TAGS=${version}-jre build-bin/docker/docker_push openzipkin/java ${version}

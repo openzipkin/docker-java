@@ -1,33 +1,41 @@
 [![Gitter chat](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/openzipkin/zipkin)
 [![Build Status](https://github.com/openzipkin/docker-java/workflows/test/badge.svg)](https://github.com/openzipkin/docker-java/actions?query=workflow%3Atest)
 
-`ghcr.io/openzipkin/java` is a minimal Docker image based on the OpenJDK [Alpine Linux](https://github.com/openzipkin/docker-alpine) package.
+`ghcr.io/openzipkin/java` is a minimal OpenJDK [Alpine Linux](https://github.com/openzipkin/docker-alpine) image.
 
-On GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) there will be two tags
-per version. The one ending in `-jre` is a minimal build including modules Zipkin related images
-need. The unqualified is a JDK that also includes Maven.
+GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) includes:
+ * `master` tag: latest commit
+ * `N.M.L` tag: release corresponding to a [Current OpenJDK Version](https://pkgs.alpinelinux.org/packages?name=openjdk8)
+
+Tags ending in `-jre` include only a JRE where unqualified tags include the full JDK, Maven, and a
+few build utilities.
+
+## Using this image
+This is an internal base layer primarily used in [zipkin](https://github.com/openzipkin/zipkin).
+
+To try the image, run the `java -version` command:
+```bash
+docker run --rm ghcr.io/openzipkin/java:8.272.10 -version
+openjdk version "1.8.0_272"
+OpenJDK Runtime Environment (IcedTea 3.17.0) (Alpine 8.272.10-r2)
+OpenJDK 64-Bit Server VM (build 25.272-b10, mixed mode)
+```
 
 ## Release process
-The Docker build is driven by `build-bin/build`. The argument to this must be Alpine's most specific
-Java 15 version without the revision classifier, ex `8.272.10-r0` -> `8.272.10`
- * You can look here https://pkgs.alpinelinux.org/packages?name=openjdk8
-
-Build the `Dockerfile` and verify the image you built matches that version.
-
-Ex.
+Build the `Dockerfile` using the current version without the revision classifier from here:
+ * https://pkgs.alpinelinux.org/packages?name=openjdk8
 ```bash
+# Note 8.272.10 not 8.272.10-r2!
 ./build-bin/build 8.272.10
 ```
 
-Next, verify the built image matches that version.
-
-For example, given the following output from `docker run --rm openzipkin/java:test -version`...
-```
+Next, verify the built image matches that version:
+```bash
+docker run --rm openzipkin/java:test -version
 openjdk version "1.8.0_272"
-OpenJDK Runtime Environment (IcedTea 3.17.0) (Alpine 8.272.10-r0)
+OpenJDK Runtime Environment (IcedTea 3.17.0) (Alpine 8.272.10-r2)
 OpenJDK 64-Bit Server VM (build 25.272-b10, mixed mode)
 ```
-The `build-bin/build` arg should be `8.272.10`
 
-To release the image, push a tag named the same as the arg to `build-bin/build` (ex `15.0.1_p9`).
-This will trigger a [Travis CI](https://travis-ci.com/openzipkin/docker-java) job to push the image.
+To release the image, push a tag matching the arg to `build-bin/build` (ex `8.272.10`).
+This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.

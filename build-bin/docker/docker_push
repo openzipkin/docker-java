@@ -21,7 +21,7 @@
 set -ue
 
 docker_image=${1?docker_image is required, notably without a tag. Ex openzipkin/zipkin}
-version=${2?version is required to build the tag list. Ex 1.2.3-SNAPSHOT or 2.22.2}
+version=${2:-master}
 
 case ${version} in
   master )
