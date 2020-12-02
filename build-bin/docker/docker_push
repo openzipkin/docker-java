@@ -18,6 +18,7 @@
 # When a release, and DOCKER_RELEASE_REPOS is unset they also push to Docker Hub (docker.io).
 #
 # Note: In CI, `configure_docker_push` must be called before invoking this.
+
 set -ue
 
 docker_image=${1?docker_image is required, notably without a tag. Ex openzipkin/zipkin}
@@ -64,8 +65,7 @@ echo "Will push the following tags with platform ${docker_platforms}:${tags}\n"
 
 docker_args=$($(dirname "$0")/docker_args ${version})
 
-# --pull ensures that pushed builds don't depend on cached layers, for example, if the same image is re-pushed.
-docker_push="docker buildx build --progress plain --platform=${docker_platforms} ${docker_args} . --pull --output=type=registry"
+docker_push="docker buildx build --progress plain --platform=${docker_platforms} ${docker_args} . --push"
 
 for tag in $(echo ${tags}|xargs); do
   echo "Pushing tag ${tag}..."

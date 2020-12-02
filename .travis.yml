@@ -1,0 +1,33 @@
+# See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
+arch:  # only test archs not already tested with GH actions
+  - arm64
+os: linux   # required for arch different than amd64
+dist: focal # newest available distribution
+language: bash
+services: docker
+
+git:
+  depth: 1  # this is only tests, so they don't need git history
+
+jobs:
+  include:
+    - stage: test
+      # We run tests on non-tagged pushes to master that aren't a commit made by the release plugin
+      # We also run tests on pull requests targeted at the master branch.
+      if: branch = master AND tag IS blank AND type IN (push, pull_request)
+      name: Run unit and integration tests
+      before_install: |  # Prevent test build of a documentation-only change.
+        if [ -n "${TRAVIS_COMMIT_RANGE}" ] && ! git diff --name-only "${TRAVIS_COMMIT_RANGE}" -- | grep -qv '\.md$'; then
+          echo "Stopping job as changes only affect documentation (ex. README.md)"
+          travis_terminate 0
+        fi
+      install: ./build-bin/configure_test
+      script: ./build-bin/test
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/ead3c37d57527214e9f2
+      - https://webhooks.gitter.im/e/9f1ee2f315d32956f8d6
+    on_success: change
+    on_failure: always

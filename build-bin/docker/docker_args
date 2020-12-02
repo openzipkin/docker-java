@@ -13,10 +13,10 @@
 # the License.
 #
 
+# This builds common docker arguments used by docker_build and docker_push.
+
 # This script checks each variable value, so it isn't important to fail on unbound (set -u)
 set -e
-
-# This builds common docker arguments used by docker_build and docker_push.
 
 docker_file=${DOCKER_FILE:-docker/Dockerfile}
 if ! test -f ${docker_file}; then
@@ -43,6 +43,15 @@ fi
 # When non-empty the target to build.
 if [ -n "${DOCKER_TARGET}" ]; then
   docker_args="${docker_args} --target ${DOCKER_TARGET}"
+fi
+
+# When non-empty, becomes the base layer including tag appropriate for the image being built.
+# Ex. ghcr.io/openzipkin/java:15.0.1_p9-jre
+#
+# This is not required to be a base (FROM scratch) image like ghcr.io/openzipkin/alpine:3.12.1
+# See https://docs.docker.com/glossary/#parent-image
+if [ -n "${DOCKER_PARENT_IMAGE}" ]; then
+  docker_args="${docker_args} --build-arg docker_parent_image=${DOCKER_PARENT_IMAGE}"
 fi
 
 # When non-empty, becomes the build-arg alpine_version. Ex. "3.12.1"

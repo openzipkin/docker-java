@@ -3,11 +3,11 @@
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
 
-# alpine_version is the base layer of full and jre image
+# docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG alpine_version=3.12.1
-FROM ghcr.io/openzipkin/alpine:$alpine_version as base
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.12.1
+FROM $docker_parent_image as base
 
 # java_version is hard-coded here to allow the following to work:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
