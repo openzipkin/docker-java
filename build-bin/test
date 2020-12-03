@@ -3,8 +3,10 @@
 # This script runs the tests of the project.
 #
 # See [README.md] for an explanation of this and how CI should use it.
+version=${1:-master}
+
 echo "Building Docker image..."
-build-bin/build
+build-bin/build ${version}
 
 echo "Verifying Docker image..."
 # Invoke the version command to ensure arch matches
