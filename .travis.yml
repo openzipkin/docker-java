@@ -22,7 +22,7 @@ jobs:
           travis_terminate 0
         fi
       install: ./build-bin/configure_test
-      script: |
+      script:
         # Test LTS JDK
         - ./build-bin/test 11.0.9_p11
         # Test latest JDK
