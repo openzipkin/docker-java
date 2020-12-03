@@ -7,6 +7,14 @@
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
 ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.12.1
+
+# We copy files from the context into a scratch container first to avoid a problem where docker and
+# docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
+# COPY --from= works around the issue.
+FROM scratch as code
+
+COPY . /code/
+
 FROM $docker_parent_image as base
 
 # java_version is hard-coded here to allow the following to work:
@@ -14,13 +22,15 @@ FROM $docker_parent_image as base
 #
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk15
-ARG java_major_version=15
+# This is defined in many places because Docker has no "env" script functionality unless you use
+# docker-compose: When updating, update everywhere.
 ARG java_version=15.0.1_p9
+ARG java_home=/usr/lib/jvm/java-15-openjdk
 LABEL java-version=$java_version
+LABEL java-home=$java_home
 
 ENV JAVA_VERSION=$java_version
-ENV JAVA_MAJOR_VERSION=$java_major_version
-ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_MAJOR_VERSION}-openjdk
+ENV JAVA_HOME=$java_home
 # Prefix Alpine Linux default path with ${JAVA_HOME}/bin
 ENV PATH=${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -31,31 +41,12 @@ ENTRYPOINT ["java", "-jar"]
 # The JDK image includes a few build utilities and Maven
 FROM base as jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
+ARG java_version=15.0.1_p9
 ARG maven_version=3.6.3
 LABEL maven-version=$maven_version
 
-# RUN, COPY, and ADD instructions create layers. While layer count is less important in modern
-# Docker, it doesn't help performance to intentionally make multiple RUN layers in a base image.
-RUN \
-#
-# Install OS packages that support most software we build
-# * openjdk15-jdk: smaller than openjdk15, which includes docs and demos
-# * openjdk15-jmods: needed for module support
-# * binutils: needed for some node modules and jlink --strip-debug
-# * tar: BusyBux built-in tar doesn't support --strip=1
-PACKAGE=openjdk${JAVA_MAJOR_VERSION} && \
-apk --no-cache add ${PACKAGE}-jmods=~${JAVA_VERSION} ${PACKAGE}-jdk=~${JAVA_VERSION} binutils tar && \
-#
-# Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
-java -version && jar --version && jlink --version && \
-#
-# Install Maven by downloading it from and Apache mirror. Prime local repository with common plugins
-APACHE_MIRROR=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp') && \
-MAVEN_DIST_URL=$APACHE_MIRROR/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz && \
-mkdir maven && wget -qO- $MAVEN_DIST_URL | tar xz --strip=1 -C maven && \
-ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn && \
-mvn -q --batch-mode help:evaluate -Dexpression=maven.version -q -DforceStdout && \
-mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
+COPY --from=code /code/install_jdk_and_maven .
+RUN ./install_jdk_and_maven $java_version $maven_version && rm install_jdk_and_maven
 
 # Use a temporary target to build a JRE using the JDK we just built
 FROM jdk as install
@@ -64,9 +55,9 @@ WORKDIR /install
 
 # Opt out of --strip-debug when openjdk15+arm64 per https://github.com/openzipkin/docker-java/issues/34
 # This is because we cannot set the following in jlink -Djdk.lang.Process.launchMechanism=vfork
-RUN if [[ "${JAVA_MAJOR_VERSION}" = "15" && "$(uname -m)" = "aarch64" ]]; then STRIP=""; else STRIP="--strip-debug"; fi && \
+RUN if [ -d "/usr/lib/jvm/java-15-openjdk" ] && [ "$(uname -m)" = "aarch64" ]; then strip=""; else strip="--strip-debug"; fi && \
 # Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
-jlink --vm=server --no-header-files --no-man-pages --compress=0 ${STRIP} --add-modules \
+jlink --vm=server --no-header-files --no-man-pages --compress=0 ${strip} --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\

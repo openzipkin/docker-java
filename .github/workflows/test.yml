@@ -28,5 +28,7 @@ jobs:
           path: ~/.docker
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: ${{ runner.os }}-docker
-      - name: Test
+      - name: Test LTS JDK
+        run: build-bin/configure_test && build-bin/test 11.0.9_p11
+      - name: Test latest JDK
         run: build-bin/configure_test && build-bin/test
