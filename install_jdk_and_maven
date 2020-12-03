@@ -30,7 +30,8 @@ maven_version=${2?maven_version is required. ex 3.6.3}
 apk --no-cache add openjdk8=~${java_version} tar
 
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
-if ! java -version || ! jar --version; then maybe_log_crash; fi
+# * JDK 1.8 jar doesn't include a version command, so we list a small jar instead
+if ! java -version || ! ${JAVA_HOME}/bin/jar -tvf ${JAVA_HOME}/jre/lib/management-agent.jar; then maybe_log_crash; fi
 
 # Install Maven by downloading it from and Apache mirror. Prime local repository with common plugins
 apache_mirror=$(wget -qO- https://www.apache.org/dyn/closer.cgi\?as_json\=1 | sed -n '/preferred/s/.*"\(.*\)"/\1/gp')

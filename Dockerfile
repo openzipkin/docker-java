@@ -25,7 +25,7 @@ FROM $docker_parent_image as base
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
 ARG java_version=8.272.10
-ARG java_home=/usr/lib/jvm/java-15-openjdk
+ARG java_home=/usr/lib/jvm/java-1.8-openjdk
 LABEL java-version=$java_version
 LABEL java-home=$java_home
 
