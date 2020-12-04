@@ -5,7 +5,7 @@
 
 GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) includes:
  * `master` tag: latest commit
- * `N.M.L` tag: release corresponding to a [Current OpenJDK Version](https://pkgs.alpinelinux.org/packages?name=openjdk8)
+ * `MAJOR.MINOR.PATCH` tag: release corresponding to a [Current OpenJDK Version](https://pkgs.alpinelinux.org/packages?name=openjdk8)
 
 Tags ending in `-jre` include only a JRE where unqualified tags include the full JDK, Maven, and a
 few build utilities.
