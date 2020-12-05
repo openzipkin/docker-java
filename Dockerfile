@@ -45,8 +45,8 @@ ARG java_version=8.272.10
 ARG maven_version=3.6.3
 LABEL maven-version=$maven_version
 
-COPY --from=code /code/install_jdk_and_maven .
-RUN ./install_jdk_and_maven $java_version $maven_version && rm install_jdk_and_maven
+COPY --from=code /code/install.sh .
+RUN ./install.sh $java_version $maven_version && rm install.sh
 
 # Our JRE image is minimal: Only Alpine, libc6-compat and a JRE
 FROM base as jre
