@@ -34,8 +34,8 @@ apk --no-cache add openjdk8=~${java_version} tar wget
 # * JDK 1.8 jar doesn't include a version command, so we list a small jar instead
 if ! java -version || ! ${JAVA_HOME}/bin/jar -tvf ${JAVA_HOME}/jre/lib/management-agent.jar; then maybe_log_crash; fi
 
-# Connection resets are frequent in CI
-alias wget="wget --tries=3 -qO-"
+# Connection resets are frequent in GitHub Actions workflows
+alias wget="wget --random-wait --tries=5 -qO-"
 
 mkdir maven
 # Install Maven by downloading it from and Apache mirror. Prime local repository with common plugins
