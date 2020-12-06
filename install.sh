@@ -38,8 +38,8 @@ ${package}-jmods=~${java_version} ${package}-jdk=~${java_version} binutils tar w
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
 if ! java -version || ! jar --version || ! jlink --version; then maybe_log_crash; fi
 
-# Connection resets are frequent in CI
-alias wget="wget --tries=3 -qO-"
+# Connection resets are frequent in GitHub Actions workflows
+alias wget="wget --random-wait --tries=5 -qO-"
 
 mkdir maven
 # Install Maven by downloading it from and Apache mirror. Prime local repository with common plugins
