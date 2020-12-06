@@ -78,7 +78,7 @@ echo "Will push the following tags:\n${tags}"
 for tag in $(echo ${tags} | xargs); do
   manifest_tags=""
   for arch_tag in ${arch_tags}; do
-    docker_arch=$(echo ${arch_tag} | cut -f2 -d: | cut -f2 -d-)
+    docker_arch=$(echo ${arch_tag} | sed 's/.*-//g')
     manifest_tag=${tag}-${docker_arch}
     docker tag ${arch_tag} ${manifest_tag}
     echo "Pushing tag ${manifest_tag}..."
@@ -89,7 +89,7 @@ for tag in $(echo ${tags} | xargs); do
   docker manifest create ${tag} ${manifest_tags}
 
   for manifest_tag in ${manifest_tags}; do
-    docker_arch=$(echo ${manifest_tag} | cut -f2 -d: | cut -f2 -d-)
+    docker_arch=$(echo ${manifest_tag} | sed 's/.*-//g')
     docker manifest annotate ${tag} ${manifest_tag} --os linux --arch ${docker_arch}
   done
 
