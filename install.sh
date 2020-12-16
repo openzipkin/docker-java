@@ -53,5 +53,5 @@ apache_backup_mirror=https://downloads.apache.org/
 (wget ${apache_mirror}${maven_dist_path} || wget ${apache_backup_mirror}${maven_dist_path}) | tar xz --strip=1 -C maven
 ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
-mvn -q --batch-mode help:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
+mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
 mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
