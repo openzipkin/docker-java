@@ -4,26 +4,23 @@
 `ghcr.io/openzipkin/java` is a minimal Docker image based on [azul/zulu-openjdk-alpine](https://hub.docker.com/r/azul/zulu-openjdk-alpine).
 
 GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) includes:
- * release tag corresponds to a [Current OpenJDK Version](https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?name=7u)
-
+ * `MAJOR.MINOR.PATCH` tag: release corresponding to the java version
 
 ## Using this image
 This is an internal base layer primarily used in [zipkin](https://github.com/openzipkin/zipkin).
 
 To try the image, run the `java -version` command:
 ```bash
-docker run --rm ghcr.io/openzipkin/java:7u285 -version
+docker run --rm ghcr.io/openzipkin/java:1.7.0_285 -version
 openjdk version "1.7.0_285"
 OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
 OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
 ```
 
 ## Release process
-Build the `Dockerfile` using the current tag without the revision classifier from here:
- * https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?name=7u
+Build the `Dockerfile`
 ```bash
-# Note 7u285 not 7u285-7.42.0.51
-./build-bin/build 7u285
+./build-bin/build
 ```
 
 Next, verify the built image matches that version:
@@ -34,5 +31,5 @@ OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
 OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `7u285`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `1.7.0_285`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
