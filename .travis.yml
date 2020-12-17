@@ -1,33 +1,22 @@
-# Run `travis lint` when changing this file to avoid breaking the build.
-
-# We need a full VM so that testcontainers can use Docker
 # See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
-arch: amd64           # arm64 is LXD containers which we can't use because we run Docker tests
-os: linux             # required for arch different than amd64
-dist: focal           # newest available distribution
-
+arch:  # only test archs not already tested with GH actions
+  - arm64
+os: linux   # required for arch different than amd64
+dist: focal # newest available distribution
 language: bash
+services: docker
 
-services:
-  - docker
+git:
+  depth: false  # TRAVIS_COMMIT_RANGE requires full commit history.
 
-before_install:
-  - |
-    # Credentials entered into https://travis-ci.org/github/openzipkin/${REPO}/settings are access
-    # controlled by branch (typically only master). Check to see if a well-known env is available
-    # before attempting to log in.
-    if [[ -n "$GH_USER" ]]; then
-      # Log in to Docker Hub for releasing the image
-      echo "$GH_TOKEN"| docker login ghcr.io -u "$GH_USER" --password-stdin
-    fi
-
-script: ./release.sh $TRAVIS_TAG
-
-# Run only for tags as "on: tags: true" will still build master!
-# Heuristic: tags describe versions, so they'll start with a number
-branches:
-  only:
-    - /^[0-9]/
+if: branch = JDK1_7 AND tag IS blank AND type IN (push, pull_request)
+before_install: |  # Prevent test build of a documentation-only change.
+  if [ -n "${TRAVIS_COMMIT_RANGE}" ] && ! git diff --name-only "${TRAVIS_COMMIT_RANGE}" -- | grep -qv '\.md$'; then
+    echo "Stopping job as changes only affect documentation (ex. README.md)"
+    travis_terminate 0
+  fi
+install: ./build-bin/configure_test
+script: ./build-bin/test
 
 notifications:
   webhooks:
@@ -36,12 +25,3 @@ notifications:
       - https://webhooks.gitter.im/e/9f1ee2f315d32956f8d6
     on_success: change
     on_failure: always
-
-# When Travis, add to https://travis-ci.org/github/openzipkin/${REPO}/settings
-#
-# GH_TOKEN=XXX-https://github.com/settings/tokens-XXX
-#   - makes release commits and tags, also writes to GHCR if Docker
-#   - needs repo:status, public_repo and if Docker write:packages, delete:packages
-#   - referenced in .settings.xml
-#   - store like this: echo "https://$GH_TOKEN:@github.com" > .git/credentials
-# GH_USER=user_that_created_GH_TOKEN

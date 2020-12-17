@@ -1,30 +1,38 @@
+[![Gitter chat](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/openzipkin/zipkin)
+[![Build Status](https://github.com/openzipkin/docker-java/workflows/test/badge.svg)](https://github.com/openzipkin/docker-java/actions?query=workflow%3Atest)
+
 `ghcr.io/openzipkin/java` is a minimal Docker image based on [azul/zulu-openjdk-alpine](https://hub.docker.com/r/azul/zulu-openjdk-alpine).
 
-On GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) there will be two tags
-per version. The one ending in `-jre` is a minimal build including modules Zipkin related images
-need. The unqualified is a JDK that also includes Maven.
+GitHub Container Registry: [ghcr.io/openzipkin/java](https://github.com/orgs/openzipkin/packages/container/package/java) includes:
+ * release tag corresponds to a [Current OpenJDK Version](https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?name=7u)
+
+
+## Using this image
+This is an internal base layer primarily used in [zipkin](https://github.com/openzipkin/zipkin).
+
+To try the image, run the `java -version` command:
+```bash
+docker run --rm ghcr.io/openzipkin/java:7u285 -version
+openjdk version "1.7.0_285"
+OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
+OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
+```
 
 ## Release process
-The Docker build is driven by `--build-arg zulu_tag`. The value of this must be Zulu's most-specific
-Java 7 tag, ex `7u282-7.42.0.13`.
- * You can look here https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=7u
-
-Build the `Dockerfile` and verify the image you built matches that tag.
-Ex. `docker build -t openzipkin/java:test-jre --build-arg zulu_tag=7u282-7.42.0.13 .`
-
-Next, verify the built image matches that `zulu_tag`.
-
-For example, given the following output from `docker run --rm openzipkin/java:test-jre -version`...
+Build the `Dockerfile` using the current tag without the revision classifier from here:
+ * https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?name=7u
+```bash
+# Note 7u285 not 7u285-7.42.0.51
+./build-bin/build 7u285
 ```
-openjdk version "1.7.0_282"
-OpenJDK Runtime Environment (Zulu 7.42.0.13-CA-linux64) (build 1.7.0_282-b10)
-OpenJDK 64-Bit Server VM (Zulu 7.42.0.13-CA-linux64) (build 24.282-b10, mixed mode)
+
+Next, verify the built image matches that version:
+```bash
+docker run --rm openzipkin/java:test -version
+openjdk version "1.7.0_285"
+OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
+OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
 ```
-The `zulu_tag` arg should be `7u282-7.42.0.13`
 
-To release the image, push a tag named the same as the `zulu_tag` you built (ex `7u282-7.42.0.13`).
-This will trigger a [Travis CI](https://travis-ci.org/openzipkin/docker-java) job to push the image.
-
-Note: The upstream Zulu repository has a monthly release cadence. Maintainers should [watch the repo](https://github.com/zulu-openjdk/zulu-openjdk/watchers),
-in case a pull request corresponds to a release. Since not all releases correspond to pull requests,
-another way is to just check again at each month end.
+To release the image, push a tag matching the arg to `build-bin/build` (ex `7u285`).
+This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
