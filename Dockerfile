@@ -7,11 +7,9 @@
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # When updating, also update the README
-#  * Use current version from https://hub.docker.com/r/azul/zulu-openjdk-alpine/tags?page=1&name=6u
-# This is defined in many places because Docker has no "env" script functionality unless you use
-# docker-compose: When updating, update everywhere.
-ARG java_version=6u119
-FROM azul/zulu-openjdk-alpine:${java_version}
+#  * This is the version output from building the image
+ARG java_version=1.6.0-119
+FROM azul/zulu-openjdk-alpine:6u119
 ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
 LABEL maintainer=$maintainer
 LABEL org.opencontainers.image.authors=$maintainer
@@ -19,6 +17,7 @@ LABEL org.opencontainers.image.description="Zulu on Alpine Linux"
 LABEL java-version=$java_version
 
 ENV JAVA_VERSION=$java_version
+ENV JAVA_HOME=/usr/lib/jvm/zulu6.22.0.3-jdk6.0.119-linux_x64
 # Default to UTF-8 file.encoding
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
