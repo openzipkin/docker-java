@@ -11,6 +11,7 @@ fi
 # Base layers are not pushed to Docker Hub (docker.io)
 export DOCKER_RELEASE_REPOS=ghcr.io
 export DOCKER_FILE=Dockerfile
+export DOCKER_ARCHS=amd64
 
 # Don't make latest tag
 DOCKER_TAGS=${version} build-bin/docker/docker_push openzipkin/java ${version}

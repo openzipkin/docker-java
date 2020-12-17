@@ -8,4 +8,5 @@ if [ "${version}" != "master" ]; then
 fi
 
 export DOCKER_FILE=Dockerfile
+export DOCKER_ARCHS=amd64
 build-bin/docker/docker_build openzipkin/java:test ${version}
