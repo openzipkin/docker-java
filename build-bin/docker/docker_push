@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# Copyright 2019-2020 The OpenZipkin Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied. See the License for the specific language governing permissions and limitations under
+# the License.
+#
+
+# This script pushes images to GitHub Container Registry (ghcr.io).
+#
+# When a release, and DOCKER_RELEASE_REPOS is unset they also push to Docker Hub (docker.io).
+#
+# Note: In CI, `configure_docker_push` must be called before invoking this.
+#
+# Avoid buildx on push for reasons including:
+#  * Caching is more complex as builder instances must be considered
+#  * Platform builds run in parallel, leading to port conflict failures (ex in cassandra)
+#  * 0.4.2 multi-platform builds have failed due to picking the wrong image for a FROM instruction
+set -ue
+
+docker_image=${1?docker_image is required, notably without a tag. Ex openzipkin/zipkin}
+version=${2:-master}
+export DOCKER_BUILDKIT=0
+
+case ${version} in
+  master )
+    is_release=false
+    ;;
+  *-SNAPSHOT )
+    is_release=false
+    ;;
+  * )
+    is_release=true
+    ;;
+esac
+
+if [ "${is_release}" = "true" ]; then
+  docker_tags=${DOCKER_TAGS:-}
+  if [ -z "${docker_tags}" ]; then
+    major_tag=$(echo "${version}" | cut -f1 -d. -s)
+    minor_tag=$(echo "${version}" | cut -f1-2 -d. -s)
+    subminor_tag="${version}"
+    docker_tags="$subminor_tag $minor_tag $major_tag latest"
+  fi
+  docker_repos=${DOCKER_RELEASE_REPOS:-ghcr.io docker.io}
+else
+  docker_tags=master
+  docker_repos=ghcr.io
+fi
+
+tags=""
+for repo in ${docker_repos}; do
+  tags="${tags}\n"
+  for tag in ${docker_tags}; do
+    tags="${tags} ${repo}/${docker_image}:${tag}"
+  done
+done
+
+docker_args=$($(dirname "$0")/docker_args ${version})
+docker_archs=${DOCKER_ARCHS:-amd64 arm64}
+
+echo "Will build the following architectures: ${docker_archs}"
+
+docker_tag0="$(echo ${docker_tags} | awk '{print $1;}')"
+arch_tags=""
+for docker_arch in ${docker_archs}; do
+  arch_tag=${docker_image}:${docker_tag0}-${docker_arch}
+  echo "Building tag ${arch_tag}..."
+  docker build --pull ${docker_args} --platform linux/${docker_arch} --tag ${arch_tag} .
+  arch_tags="${arch_tags} ${arch_tag}"
+done
+
+echo "Will push the following tags:\n${tags}"
+
+for tag in $(echo ${tags} | xargs); do
+  manifest_tags=""
+  for arch_tag in ${arch_tags}; do
+    docker_arch=$(echo ${arch_tag} | sed 's/.*-//g')
+    manifest_tag=${tag}-${docker_arch}
+    docker tag ${arch_tag} ${manifest_tag}
+    echo "Pushing tag ${manifest_tag}..."
+    docker push ${manifest_tag}
+    manifest_tags="${manifest_tags} ${manifest_tag}"
+  done
+
+  docker manifest create ${tag} ${manifest_tags}
+
+  for manifest_tag in ${manifest_tags}; do
+    docker_arch=$(echo ${manifest_tag} | sed 's/.*-//g')
+    docker manifest annotate ${tag} ${manifest_tag} --os linux --arch ${docker_arch}
+  done
+
+  echo "Pushing manifest ${manifest_tag}..."
+  docker manifest push -p ${tag}
+done
