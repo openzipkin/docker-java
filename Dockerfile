@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.12.3
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.14.2
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
@@ -24,7 +24,7 @@ FROM $docker_parent_image as base
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk15
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
-ARG java_version=15.0.1_p9
+ARG java_version=15.0.4_p5
 ARG java_home=/usr/lib/jvm/java-15-openjdk
 LABEL java-version=$java_version
 LABEL java-home=$java_home
@@ -41,7 +41,7 @@ ENTRYPOINT ["java", "-jar"]
 # The JDK image includes a few build utilities and Maven
 FROM base as jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
-ARG java_version=15.0.1_p9
+ARG java_version=15.0.4_p5
 ARG maven_version=3.6.3
 LABEL maven-version=$maven_version
 
