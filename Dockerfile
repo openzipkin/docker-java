@@ -55,7 +55,7 @@ WORKDIR /install
 
 # Opt out of --strip-debug when openjdk15+arm64 per https://github.com/openzipkin/docker-java/issues/34
 # This is because we cannot set the following in jlink -Djdk.lang.Process.launchMechanism=vfork
-RUN if [ -d "/usr/lib/jvm/java-15-openjdk" ] && [ "$(uname -m)" = "aarch64" ]; then strip=""; else strip="--strip-debug"; fi && \
+RUN if [ -d "/usr/lib/jvm/java-15-openjdk" ] && uname -m | grep -E 'aarch64|s390x'; then strip=""; else strip="--strip-debug"; fi && \
 # Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
 jlink --vm=server --no-header-files --no-man-pages --compress=0 ${strip} --add-modules \
 java.base,java.logging,\

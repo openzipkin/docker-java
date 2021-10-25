@@ -1,6 +1,7 @@
 # See https://docs.travis-ci.com/user/reference/overview/#for-a-particular-travisyml-configuration
 arch:  # only test archs not already tested with GH actions
   - arm64
+  - s390x
 os: linux   # required for arch different than amd64
 dist: focal # newest available distribution
 language: bash
