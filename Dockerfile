@@ -24,7 +24,7 @@ FROM $docker_parent_image as base
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk15
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
-ARG java_version=15.0.4_p5
+ARG java_version=15.0.5_p3
 ARG java_home=/usr/lib/jvm/java-15-openjdk
 LABEL java-version=$java_version
 LABEL java-home=$java_home
@@ -41,7 +41,7 @@ ENTRYPOINT ["java", "-jar"]
 # The JDK image includes a few build utilities and Maven
 FROM base as jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
-ARG java_version=15.0.4_p5
+ARG java_version=15.0.5_p3
 ARG maven_version=3.6.3
 LABEL maven-version=$maven_version
 
