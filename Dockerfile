@@ -86,7 +86,7 @@ jdk.crypto.ec,\
 jdk.unsupported,\
 # Elasticsearch 7+ crashes without Thai Segmentation support
 #  Add <900K instead of a different base layer
-jdk.localedata --include-locales en,th\
+jdk.localedata --include-locales en,th \
 --output jre
 
 # Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
