@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.15.4
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.16.2
 
 # java_version is hard-coded here to allow the following to work:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -14,7 +14,7 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.15.4
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk15, stripping
 #    the `-rX` at the end.
-ARG java_version=15.0.7_p4
+ARG java_version=15.0.8_p4
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.

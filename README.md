@@ -15,27 +15,27 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-docker run --rm ghcr.io/openzipkin/java:15.0.7_p4-r0 -version
-openjdk version "15.0.7" 2022-04-19
-OpenJDK Runtime Environment (build 15.0.7+4-alpine-r0)
-OpenJDK 64-Bit Server VM (build 15.0.7+4-alpine-r0, mixed mode, sharing)
+docker run --rm ghcr.io/openzipkin/java:15.0.8_p4-r0 -version
+openjdk version "15.0.8" 2022-04-19
+OpenJDK Runtime Environment (build 15.0.8+4-alpine-r0)
+OpenJDK 64-Bit Server VM (build 15.0.8+4-alpine-r0, mixed mode, sharing)
 ```
 
 ## Release process
 Build the `Dockerfile` using the current version without the revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk15
 ```bash
-# Note 15.0.7_p4 not 15.0.7_p4-r0!
-./build-bin/build 15.0.7_p4
+# Note 15.0.8_p4 not 15.0.8_p4-r0!
+./build-bin/build 15.0.8_p4
 ```
 
 Next, verify the built image matches that version:
 ```bash
 docker run --rm openzipkin/java:test -version
-openjdk version "15.0.7" 2022-04-19
-OpenJDK Runtime Environment (build 15.0.7+4-alpine-r0)
-OpenJDK 64-Bit Server VM (build 15.0.7+4-alpine-r0, mixed mode, sharing)
+openjdk version "15.0.8" 2022-04-19
+OpenJDK Runtime Environment (build 15.0.8+4-alpine-r0)
+OpenJDK 64-Bit Server VM (build 15.0.8+4-alpine-r0, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `15.0.7_p4`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `15.0.8_p4`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
