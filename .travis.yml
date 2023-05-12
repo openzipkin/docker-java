@@ -19,7 +19,7 @@ before_install: |  # Prevent test build of a documentation-only change.
 install: ./build-bin/configure_test
 script:
   # Test LTS JDK
-  - ./build-bin/test 17.0.5_p8
+  - ./build-bin/test 17.0.7_p7
   # Test latest JDK
   - ./build-bin/test
 
