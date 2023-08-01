@@ -27,7 +27,7 @@ function maybe_log_crash() {
   (cat $(ls hs_err_pid*.log) 2>&- || true) && exit 1;
 }
 
-java_version=${1?java_version is required. ex 17.0.7_p7}
+java_version=${1?java_version is required. ex 17.0.8_p7}
 maven_version=${2?maven_version is required. ex 3.6.3}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
