@@ -25,6 +25,6 @@ jobs:
       # We can't cache Docker without using buildx because GH actions restricts /var/lib/docker
       # That's ok because DOCKER_PARENT_IMAGE is always ghcr.io and local anyway.
       - name: Test LTS JDK
-        run: build-bin/configure_test && build-bin/test 17.0.7_p7
+        run: build-bin/configure_test && build-bin/test 17.0.8_p7
       - name: Test latest JDK
         run: build-bin/configure_test && build-bin/test
