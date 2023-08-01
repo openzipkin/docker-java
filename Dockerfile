@@ -50,7 +50,7 @@ ENTRYPOINT ["java", "-jar"]
 FROM base as jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 ARG java_version
-ARG maven_version=3.6.3
+ARG maven_version=3.8.8
 LABEL maven-version=$maven_version
 
 COPY --from=code /code/install.sh .
