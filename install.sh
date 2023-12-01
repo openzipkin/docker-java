@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2019-2020 The OpenZipkin Authors
+# Copyright 2019-2023 The OpenZipkin Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -13,8 +13,8 @@
 # the License.
 
 # Install OS packages that support most software we build
-# * openjdk15-jdk: smaller than openjdk15, which includes docs and demos
-# * openjdk15-jmods: needed for module support
+# * openjdk21-jdk: smaller than openjdk21, which includes docs and demos
+# * openjdk21-jmods: needed for module support
 # * binutils: needed for some node modules and jlink --strip-debug
 # * tar: BusyBox built-in tar doesn't support --strip=1
 # * wget: BusyBox built-in wget doesn't support --tries=3
@@ -27,8 +27,8 @@ function maybe_log_crash() {
   (cat $(ls hs_err_pid*.log) 2>&- || true) && exit 1;
 }
 
-java_version=${1?java_version is required. ex 17.0.8_p7}
-maven_version=${2?maven_version is required. ex 3.6.3}
+java_version=${1?java_version is required. ex --strip-debug}
+maven_version=${2?maven_version is required. ex 3.9.6}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
@@ -53,5 +53,5 @@ apache_backup_mirror=https://downloads.apache.org/
 (wget ${apache_mirror}${maven_dist_path} || wget ${apache_backup_mirror}${maven_dist_path}) | tar xz --strip=1 -C maven
 ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
-mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
-mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
+mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.4.0:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
+mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.6.1:get -Dmdep.skip

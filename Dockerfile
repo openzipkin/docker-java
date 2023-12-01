@@ -12,9 +12,9 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.18.2
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk17, stripping
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21, stripping
 #    the `-rX` at the end.
-ARG java_version=17.0.8_p7
+ARG java_version=21.0.1_p12
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
@@ -29,11 +29,11 @@ FROM $docker_parent_image as base
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk15
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
 ARG java_version
-ARG java_home=/usr/lib/jvm/java-17-openjdk
+ARG java_home=/usr/lib/jvm/java-21-openjdk
 LABEL java-version=$java_version
 LABEL java-home=$java_home
 
@@ -50,7 +50,7 @@ ENTRYPOINT ["java", "-jar"]
 FROM base as jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 ARG java_version
-ARG maven_version=3.8.8
+ARG maven_version=3.9.6
 LABEL maven-version=$maven_version
 
 COPY --from=code /code/install.sh .
@@ -61,11 +61,8 @@ FROM jdk as install
 
 WORKDIR /install
 
-# Opt out of --strip-debug when openjdk15+arm64 per https://github.com/openzipkin/docker-java/issues/34
-# This is because we cannot set the following in jlink -Djdk.lang.Process.launchMechanism=vfork
-RUN if [ -d "/usr/lib/jvm/java-17-openjdk" ] && uname -m | grep -E 'aarch64|s390x'; then strip=""; else strip="--strip-debug"; fi && \
-# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/15/docs/api/
-jlink --vm=server --no-header-files --no-man-pages --compress=0 ${strip} --add-modules \
+# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/21/docs/api/
+RUN jlink --vm=server --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
