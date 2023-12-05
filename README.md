@@ -30,7 +30,13 @@ always operable for the latest LTS JDKs that don't need workarounds.
 Also, make sure you are using an LTS JDK. Any non-LTS would be an exception
 basis and are unlikely to be consumed by Zipkin (primary reason for this repo).
 
-Build the `Dockerfile` using the current version without the revision classifier from here:
+Make sure the [Dockerfile](Dockerfile) has `docker_parent_image` set to the
+[Current Alpine Version](https://www.alpinelinux.org/downloads/). If the image
+doesn't yet exist, release it [here](https://github.com/openzipkin/docker-alpine)
+before continuing. Notably, this avoids missing CVE fixes by mistake.
+
+Build the [Dockerfile](Dockerfile) using the current version without the
+revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk21
 ```bash
 # Note 21.0.1_p12 not 21.0.1_p12-r0!
