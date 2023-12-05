@@ -23,7 +23,7 @@ set -uex
 
 # Ensure we can create hs_err_pid*.log
 ulimit -c unlimited
-function maybe_log_crash() {
+maybe_log_crash() {
   (cat $(ls hs_err_pid*.log) 2>&- || true) && exit 1;
 }
 
