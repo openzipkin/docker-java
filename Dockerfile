@@ -8,8 +8,8 @@
 #
 # When updating, also update the README
 #  * This is the version output from building the image
-ARG java_version=1.7.0_285
-FROM azul/zulu-openjdk-alpine:7u285
+ARG java_version=1.7.0_7u352
+FROM azul/zulu-openjdk-alpine:7u352
 ARG maintainer="OpenZipkin https://gitter.im/openzipkin/zipkin"
 LABEL maintainer=$maintainer
 LABEL org.opencontainers.image.authors=$maintainer
