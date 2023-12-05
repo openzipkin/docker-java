@@ -21,7 +21,7 @@ set -uex
 
 # Ensure we can create hs_err_pid*.log
 ulimit -c unlimited
-function maybe_log_crash() {
+maybe_log_crash() {
   (cat $(ls hs_err_pid*.log) 2>&- || true) && exit 1;
 }
 
@@ -49,5 +49,5 @@ apache_backup_mirror=https://downloads.apache.org/
 (wget ${apache_mirror}${maven_dist_path} || wget ${apache_backup_mirror}${maven_dist_path}) | tar xz --strip=1 -C maven
 ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
-mvn -q --batch-mode help:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
-mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.1.2:get -Dmdep.skip
+mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.4.0:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
+mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.6.1:get -Dmdep.skip
