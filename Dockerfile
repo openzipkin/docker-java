@@ -17,7 +17,7 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.18.5
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21, stripping
 #    the `-rX` at the end.
-ARG java_version=21.0.1_p12
+ARG java_version=17.0.9_p8
 ARG java_home=/usr/lib/jvm/java-21-openjdk
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
@@ -66,7 +66,11 @@ FROM jdk as install
 WORKDIR /install
 
 # Included modules cherry-picked from https://docs.oracle.com/en/java/javase/21/docs/api/
-RUN jlink --vm=server --no-header-files --no-man-pages --compress=0 --strip-debug --add-modules \
+# Note: unlike the master branch, this doesn't use --strip-debug on non-x86_64, because
+# it fails like below on JDK17 per #34:
+# Error: java.io.IOException: Cannot run program "objcopy": error=0, Failed to exec spawn helper: pid: 39, exit value: 1
+RUN if [ -d "/usr/lib/jvm/java-17-openjdk" ] && uname -m | grep -E 'x86_64'; then strip="--strip-debug"; else strip=""; fi && \
+jlink --vm=server --no-header-files --no-man-pages --compress=0 ${strip} --add-modules \
 java.base,java.logging,\
 # java.desktop includes java.beans which is used by Spring
 java.desktop,\
