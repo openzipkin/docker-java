@@ -1,9 +1,9 @@
 # Test and Deploy scripts
 
 This is a Docker project, which uses standard conventions for test and deploy. What's notable about
-docker-alpine is that the base layers are only pushed to `ghcr.io`, and tests are simply running the
-`cat /etc/alpine-release`. There's a non-standard `build` script referenced in [../README.md] that
-allows easier manual builds of the Dockerfile.
+docker-java is that the base layers are only pushed to `ghcr.io`, and tests are simply running the
+`-version` command. There's a non-standard `build` script referenced in [../README.md] that allows
+easier manual builds of the Dockerfile.
 
 [//]: # (Below here should be standard for all projects)
 
