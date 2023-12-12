@@ -12,13 +12,13 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.19.0
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # These are overridden via build-bin/docker/docker_args, ensuring the two are
-# coherent (e.g. java 21.* has a java_home of java-21-openjdk).
+# coherent (e.g. java 17.* has a java_home of java-17-openjdk).
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21, stripping
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk17, stripping
 #    the `-rX` at the end.
 ARG java_version=17.0.9_p8
-ARG java_home=/usr/lib/jvm/java-21-openjdk
+ARG java_home=/usr/lib/jvm/java-17-openjdk
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
@@ -33,7 +33,7 @@ FROM $docker_parent_image as base
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk17
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
 ARG java_version
@@ -65,7 +65,7 @@ FROM jdk as install
 
 WORKDIR /install
 
-# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/21/docs/api/
+# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/17/docs/api/
 # Note: unlike the master branch, this doesn't use --strip-debug on non-x86_64, because
 # it fails like below on JDK17 per #34:
 # Error: java.io.IOException: Cannot run program "objcopy": error=0, Failed to exec spawn helper: pid: 39, exit value: 1
