@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.18.5
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.19.0
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -95,7 +95,7 @@ jdk.unsupported,\
 jdk.localedata --include-locales en,th \
 --output jre
 
-# Our JRE image is minimal: Only Alpine, libc6-compat and a stripped down JRE
+# Our JRE image is minimal: Only Alpine, gcompat and a stripped down JRE
 FROM base as jre
 LABEL org.opencontainers.image.description="Minimal OpenJDK JRE on Alpine Linux"
 
