@@ -72,6 +72,8 @@ java.base,java.logging,\
 java.desktop,\
 # our default server includes SQL
 java.sql,\
+# MariaDB Connector/J 3.x additionally requires rowset
+java.sql.rowset,\
 # instrumentation
 java.instrument,\
 # remote debug
