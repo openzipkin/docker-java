@@ -54,6 +54,27 @@ OpenJDK 64-Bit Server VM (build 17.0.9+8-alpine-r0, mixed mode, sharing)
 To release the image, push a tag matching the arg to `build-bin/build` (ex `17.0.9_p8`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
 
+## java.lang.ClassNotFoundException
+
+The image ending in `-jre` is stripped to only retain the minimal modules needed by Zipkin. This is
+to make it as small as possible. If the `zipkin` or `zipkin-slim` images fail with a
+`java.lang.ClassNotFoundException`, it may be related to the modules linked in the [Dockerfile][Dockerfile].
+
+If the package begins with `java.`, `sun.` or `com.sun.`, it is likely a JRE module. To verify, use
+`javap` without any other options. If a result is printed, you need to link a corresponding module.
+
+For example, here's the result of `javax.sql.rowset.serial.SerialException`, which is in the module
+`java.sql.rowset`:
+```
+$ javap javax.sql.rowset.serial.SerialException
+Compiled from "SerialException.java"
+public class javax.sql.rowset.serial.SerialException extends java.sql.SQLException {
+  static final long serialVersionUID;
+  public javax.sql.rowset.serial.SerialException();
+  public javax.sql.rowset.serial.SerialException(java.lang.String);
+}
+```
+
 ## CVEs
 
 This builds JDK and JRE images over our [Alpine Linux](https://github.com/openzipkin/docker-alpine)
