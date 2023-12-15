@@ -84,17 +84,12 @@ java.instrument,\
 jdk.jdwp.agent,\
 # JVM metrics such as garbage collection
 jdk.management,\
-# Prevents us from needing a different base layer for kafka-zookeeper
-# non-Netty based DNS
-java.naming,jdk.naming.dns,\
-# TLS handehake with servers that use elliptic curve certificates
+# TLS handshake with servers that use elliptic curve certificates
 jdk.crypto.ec,\
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
 # improve performance. Ex. sun.misc.Unsafe and friends
 jdk.unsupported,\
-# Elasticsearch 7+ crashes without Thai Segmentation support
-#  Add <900K instead of a different base layer
-jdk.localedata --include-locales en,th \
+jdk.localedata --include-locales en \
 --output jre
 
 # Our JRE image is minimal: Only Alpine, gcompat and a stripped down JRE
