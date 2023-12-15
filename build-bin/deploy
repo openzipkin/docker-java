@@ -12,10 +12,6 @@ fi
 export DOCKER_RELEASE_REPOS=ghcr.io
 export DOCKER_FILE=Dockerfile
 
-# Don't attempt ppc64le until there's a package for recent LTS versions.
-# See https://github.com/openzipkin/zipkin/issues/3443
-export DOCKER_ARCHS="amd64 arm64 s390x"
-
 # Don't make latest tag
 DOCKER_TARGET=jdk DOCKER_TAGS=${version} build-bin/docker/docker_push openzipkin/java ${version}
 DOCKER_TARGET=jre DOCKER_TAGS=${version}-jre build-bin/docker/docker_push openzipkin/java ${version}
