@@ -31,10 +31,10 @@ maven_version=${2?maven_version is required. ex 3.9.6}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
-# Install all packages from the edge community repository, which is where the
-# latest openjdk is found.
-apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+# Install openjdk using only the edge repository, to allow latest versions
+# without conflicting with what's on
+sed -i '1ihttps://dl-cdn.alpinelinux.org/alpine/edge/community' /etc/apk/repositories
+apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget
 
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
 if ! java -version || ! jar --version || ! jlink --version; then maybe_log_crash; fi
