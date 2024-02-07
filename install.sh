@@ -31,8 +31,15 @@ maven_version=${2?maven_version is required. ex 3.9.6}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
-sed -i 's/dl-cdn.alpinelinux.org/uk.alpinelinux.org/g' /etc/apk/repositories
-apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget
+# Use only the edge branch, to avoid world conflicts on openjdk, which is
+# also on the release (e.g. v3.19) branch, now. The openjdk package will be in
+# the community repository, while other utilities are in the main one.
+echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /tmp/repositories.$$
+echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /tmp/repositories.$$
+apk --no-cache add ${package}-jdk=~${java_version} --repositories-file /tmp/repositories.$$
+rm /tmp/repositories.$$
+
+apk --no-cache add binutils tar wget
 
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
 if ! java -version || ! jar --version || ! jlink --version; then maybe_log_crash; fi
