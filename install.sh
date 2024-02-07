@@ -13,8 +13,7 @@
 # the License.
 
 # Install OS packages that support most software we build
-# * openjdk21-jdk: smaller than openjdk21, which includes docs and demos
-# * openjdk21-jmods: needed for module support
+# * openjdk17-jdk: smaller than openjdk17, which includes docs and demos
 # * binutils: needed for some node modules and jlink --strip-debug
 # * tar: BusyBox built-in tar doesn't support --strip=1
 # * wget: BusyBox built-in wget doesn't support --tries=3
@@ -32,8 +31,7 @@ maven_version=${2?maven_version is required. ex 3.9.6}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
-apk --no-cache add \
-${package}-jmods=~${java_version} ${package}-jdk=~${java_version} binutils tar wget
+apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget
 
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
 if ! java -version || ! jar --version || ! jlink --version; then maybe_log_crash; fi
