@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.19.1
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.19.0
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
