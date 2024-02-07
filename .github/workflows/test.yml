@@ -16,7 +16,16 @@ on:
 
 jobs:
   test:
+    name: test (${{ matrix.name }})
     runs-on: ubuntu-22.04  # newest available distribution, aka jellyfish
+    strategy:
+      fail-fast: false  # don't fail fast as some failures are LTS specific
+      matrix: # match with maven-enforcer-plugin rules in pom.xml
+        include:
+          - name: build-arg
+            version: 21.0.2_p13
+          - name: implicit
+            version: master
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -24,7 +33,5 @@ jobs:
           fetch-depth: 1  # only needed to get the sha label
       # We can't cache Docker without using buildx because GH actions restricts /var/lib/docker
       # That's ok because DOCKER_PARENT_IMAGE is always ghcr.io and local anyway.
-      - name: Test LTS JDK
-        run: build-bin/configure_test && build-bin/test 21.0.1_p12
-      - name: Test latest JDK
-        run: build-bin/configure_test && build-bin/test
+      - name: Test
+        run: build-bin/configure_test && build-bin/test ${{ matrix.version }}
