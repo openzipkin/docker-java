@@ -33,7 +33,8 @@ package=openjdk${java_major_version}
 
 # Install openjdk using only the edge repository, to allow latest versions
 # without conflicting with what's on
-echo https://dl-cdn.alpinelinux.org/alpine/edge/community > /tmp/repositories.$$
+echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /tmp/repositories.$$
+echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /tmp/repositories.$$
 apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget \
     --repositories-file /tmp/repositories.$$
 rm /tmp/repositories.$$
