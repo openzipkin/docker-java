@@ -32,6 +32,7 @@ java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
 cat /etc/apk/world
+apk del java-cacerts
 apk --no-cache add ${package}-jdk=~${java_version} binutils tar wget
 
 # Typically, only amd64 is tested in CI: Run commands that ensure binaries match current arch.
