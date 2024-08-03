@@ -12,9 +12,9 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 To try the image, run the `java -version` command:
 ```bash
 docker run --rm ghcr.io/openzipkin/java:1.7.0_285 -version
-openjdk version "1.7.0_285"
-OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
-OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
+openjdk version "1.7.0_352"
+OpenJDK Runtime Environment (Zulu 7.56.0.11-CA-linux64) (build 1.7.0_352-b01)
+OpenJDK 64-Bit Server VM (Zulu 7.56.0.11-CA-linux64) (build 24.352-b01, mixed mode)
 ```
 
 ## Release process
@@ -26,9 +26,9 @@ Build the `Dockerfile`
 Next, verify the built image matches that version:
 ```bash
 docker run --rm openzipkin/java:test -version
-openjdk version "1.7.0_285"
-OpenJDK Runtime Environment (Zulu 7.42.0.51-CA-linux64) (build 1.7.0_285-b01)
-OpenJDK 64-Bit Server VM (Zulu 7.42.0.51-CA-linux64) (build 24.285-b01, mixed mode)
+openjdk version "1.7.0_352"
+OpenJDK Runtime Environment (Zulu 7.56.0.11-CA-linux64) (build 1.7.0_352-b01)
+OpenJDK 64-Bit Server VM (Zulu 7.56.0.11-CA-linux64) (build 24.352-b01, mixed mode)
 ```
 
 To release the image, push a tag matching the arg to `build-bin/build` (ex `1.7.0_285`).
