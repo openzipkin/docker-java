@@ -27,7 +27,7 @@ maybe_log_crash() {
 }
 
 java_version=${1?java_version is required. ex --strip-debug}
-maven_version=${2?maven_version is required. ex 3.9.6}
+maven_version=${2?maven_version is required. ex 3.9.8}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
