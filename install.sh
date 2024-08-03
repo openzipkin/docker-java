@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2019-2020 The OpenZipkin Authors
+# Copyright 2019-2024 The OpenZipkin Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -49,5 +49,5 @@ apache_backup_mirror=https://downloads.apache.org/
 (wget ${apache_mirror}${maven_dist_path} || wget ${apache_backup_mirror}${maven_dist_path}) | tar xz --strip=1 -C maven
 ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
-mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.4.0:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
-mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.6.1:get -Dmdep.skip
+mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
+mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.7.1:get -Dmdep.skip
