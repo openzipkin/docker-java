@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.20.2
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.20.3
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -17,17 +17,17 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.20.2
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk17, stripping
 #    the `-rX` at the end.
-ARG java_version=17.0.12_p7
+ARG java_version=17.0.13_p11
 ARG java_home=/usr/lib/jvm/java-17-openjdk
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
 # COPY --from= works around the issue.
-FROM scratch as code
+FROM scratch AS code
 
 COPY . /code/
 
-FROM $docker_parent_image as base
+FROM $docker_parent_image AS base
 
 # java_version is hard-coded here to allow the following to work:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -51,17 +51,17 @@ WORKDIR /java
 ENTRYPOINT ["java", "-jar"]
 
 # The JDK image includes a few build utilities and Maven
-FROM base as jdk
+FROM base AS jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 ARG java_version
-ARG maven_version=3.9.8
+ARG maven_version=3.9.9
 LABEL maven-version=$maven_version
 
 COPY --from=code /code/install.sh .
 RUN ./install.sh $java_version $maven_version && rm install.sh
 
 # Use a temporary target to build a JRE using the JDK we just built
-FROM jdk as install
+FROM jdk AS install
 
 WORKDIR /install
 
@@ -93,7 +93,7 @@ jdk.localedata --include-locales en \
 --output jre
 
 # Our JRE image is minimal: Only Alpine, gcompat and a stripped down JRE
-FROM base as jre
+FROM base AS jre
 LABEL org.opencontainers.image.description="Minimal OpenJDK JRE on Alpine Linux"
 
 COPY --from=install /install/jre/ ${JAVA_HOME}/

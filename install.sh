@@ -19,7 +19,7 @@ maybe_log_crash() {
 }
 
 java_version=${1?java_version is required. ex --strip-debug}
-maven_version=${2?maven_version is required. ex 3.9.8}
+maven_version=${2?maven_version is required. ex 3.9.9}
 java_major_version=$(echo ${java_version}| cut -f1 -d .)
 package=openjdk${java_major_version}
 
@@ -43,5 +43,5 @@ apache_backup_mirror=https://downloads.apache.org/
 (wget ${apache_mirror}${maven_dist_path} || wget ${apache_backup_mirror}${maven_dist_path}) | tar xz --strip=1 -C maven
 ln -s ${PWD}/maven/bin/mvn /usr/bin/mvn
 
-mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
-mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.7.1:get -Dmdep.skip
+mvn -q --batch-mode org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -Dexpression=maven.version -q -DforceStdout || maybe_log_crash
+mvn -q --batch-mode org.apache.maven.plugins:maven-dependency-plugin:3.8.1:get -Dmdep.skip
