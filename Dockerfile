@@ -11,11 +11,11 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.20.2
 # We copy files from the context into a scratch container first to avoid a problem where docker and
 # docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
 # COPY --from= works around the issue.
-FROM scratch as code
+FROM scratch AS code
 
 COPY . /code/
 
-FROM $docker_parent_image as base
+FROM $docker_parent_image AS base
 
 # java_version is hard-coded here to allow the following to work:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -24,7 +24,7 @@ FROM $docker_parent_image as base
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk8
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
-ARG java_version=8.402.06
+ARG java_version=8.422.05
 ARG java_home=/usr/lib/jvm/java-1.8-openjdk
 LABEL java-version=$java_version
 LABEL java-home=$java_home
@@ -39,17 +39,17 @@ WORKDIR /java
 ENTRYPOINT ["java", "-jar"]
 
 # The JDK image includes a few build utilities and Maven
-FROM base as jdk
+FROM base AS jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
-ARG java_version=8.402.06
-ARG maven_version=3.9.8
+ARG java_version=8.422.05
+ARG maven_version=3.9.9
 LABEL maven-version=$maven_version
 
 COPY --from=code /code/install.sh .
 RUN ./install.sh $java_version $maven_version && rm install.sh
 
 # Our JRE image is minimal: Only Alpine, libc6-compat and a JRE
-FROM base as jre
+FROM base AS jre
 LABEL org.opencontainers.image.description="OpenJDK JRE provided by IcedTea on Alpine Linux"
 
 # Finalize JRE install:
