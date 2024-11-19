@@ -17,13 +17,13 @@ on:
 jobs:
   test:
     name: test (${{ matrix.name }})
-    runs-on: ubuntu-22.04  # newest available distribution, aka jellyfish
+    runs-on: ubuntu-24.04  # newest available distribution, aka numbat
     strategy:
       fail-fast: false  # don't fail fast as some failures are LTS specific
       matrix: # match with maven-enforcer-plugin rules in pom.xml
         include:
           - name: build-arg
-            version: 21.0.4_p7
+            version: 21.0.5_p11
           - name: implicit
             version: master
     steps:

@@ -15,7 +15,7 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-$ docker run --rm ghcr.io/openzipkin/java:21.0.4_p7 -version
+$ docker run --rm ghcr.io/openzipkin/java:21.0.5_p11 -version
 openjdk version "21.0.4" 2024-07-16
 OpenJDK Runtime Environment (build 21.0.4+7-alpine-r0)
 OpenJDK 64-Bit Server VM (build 21.0.4+7-alpine-r0, mixed mode, sharing)
@@ -39,26 +39,26 @@ Build the [Dockerfile](Dockerfile) using the current version without the
 revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk21
 ```bash
-# Note 21.0.4_p7 not 21.0.4_p7-r2!
-./build-bin/build 21.0.4_p7
+# Note 21.0.5_p11 not 21.0.5_p11-r2!
+./build-bin/build 21.0.5_p11
 ```
 
 Next, verify the built image matches that version:
 ```bash
 $ docker run --rm openzipkin/java:test -version
-openjdk version "21.0.4" 2024-07-16
-OpenJDK Runtime Environment (build 21.0.4+7-alpine-r0)
-OpenJDK 64-Bit Server VM (build 21.0.4+7-alpine-r0, mixed mode, sharing)
+openjdk version "21.0.5" 2024-10-15
+OpenJDK Runtime Environment (build 21.0.5+11-alpine-r0)
+OpenJDK 64-Bit Server VM (build 21.0.5+11-alpine-r0, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `21.0.4_p7`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `21.0.5_p11`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
 
 ## java.lang.ClassNotFoundException
 
 The image ending in `-jre` is stripped to only retain the minimal modules needed by Zipkin. This is
 to make it as small as possible. If the `zipkin` or `zipkin-slim` images fail with a
-`java.lang.ClassNotFoundException`, it may be related to the modules linked in the [Dockerfile][Dockerfile].
+`java.lang.ClassNotFoundException`, it may be related to the modules linked in the [Dockerfile](Dockerfile).
 
 If the package begins with `java.`, `sun.` or `com.sun.`, it is likely a JRE module. To verify, use
 `javap` without any other options. If a result is printed, you need to link a corresponding module.
