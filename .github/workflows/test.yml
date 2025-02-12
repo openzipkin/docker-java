@@ -23,7 +23,7 @@ jobs:
       matrix: # match with maven-enforcer-plugin rules in pom.xml
         include:
           - name: build-arg
-            version: 17.0.13_p11
+            version: 17.0.14_p7
           - name: implicit
             version: master
     steps:
