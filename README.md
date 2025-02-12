@@ -15,25 +15,27 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-openjdk version "1.8.0_422"
-OpenJDK Runtime Environment (IcedTea 3.32.0) (Alpine 8.422.05-r0)
-OpenJDK 64-Bit Server VM (build 25.422-b05, mixed mode)
+$ docker run --rm ghcr.io/openzipkin/java:8.432.06 -version
+openjdk version "1.8.0_432"
+OpenJDK Runtime Environment (IcedTea 3.33.0) (Alpine 8.432.06-r1)
+OpenJDK 64-Bit Server VM (build 25.432-b06, mixed mode)
 ```
 
 ## Release process
 Build the `Dockerfile` using the current version without the revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk8
 ```bash
-# Note 8.422.05 not 8.422.05-r1!
-./build-bin/build 8.422.05
+# Note 8.432.06 not 8.432.06-r1!
+./build-bin/build 8.432.06
 ```
 
 Next, verify the built image matches that version:
 ```bash
-openjdk version "1.8.0_422"
-OpenJDK Runtime Environment (IcedTea 3.32.0) (Alpine 8.422.05-r0)
-OpenJDK 64-Bit Server VM (build 25.422-b05, mixed mode)
+$ docker run --rm openzipkin/java:test -version
+openjdk version "1.8.0_432"
+OpenJDK Runtime Environment (IcedTea 3.33.0) (Alpine 8.432.06-r1)
+OpenJDK 64-Bit Server VM (build 25.432-b06, mixed mode)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `8.422.05`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `8.432.06`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
