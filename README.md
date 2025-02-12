@@ -15,7 +15,7 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-$ docker run --rm ghcr.io/openzipkin/java:21.0.5_p11 -version
+$ docker run --rm ghcr.io/openzipkin/java:21.0.6_p7 -version
 openjdk version "21.0.4" 2024-07-16
 OpenJDK Runtime Environment (build 21.0.4+7-alpine-r0)
 OpenJDK 64-Bit Server VM (build 21.0.4+7-alpine-r0, mixed mode, sharing)
@@ -39,19 +39,19 @@ Build the [Dockerfile](Dockerfile) using the current version without the
 revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk21
 ```bash
-# Note 21.0.5_p11 not 21.0.5_p11-r2!
-./build-bin/build 21.0.5_p11
+# Note 21.0.6_p7 not 21.0.6_p7-r2!
+./build-bin/build 21.0.6_p7
 ```
 
 Next, verify the built image matches that version:
 ```bash
 $ docker run --rm openzipkin/java:test -version
-openjdk version "21.0.5" 2024-10-15
-OpenJDK Runtime Environment (build 21.0.5+11-alpine-r0)
-OpenJDK 64-Bit Server VM (build 21.0.5+11-alpine-r0, mixed mode, sharing)
+openjdk version "21.0.6" 2025-01-21
+OpenJDK Runtime Environment (build 21.0.6+7-alpine-r0)
+OpenJDK 64-Bit Server VM (build 21.0.6+7-alpine-r0, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `21.0.5_p11`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `21.0.6_p7`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
 
 ## java.lang.ClassNotFoundException
