@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.21.2
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.21.3
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -17,7 +17,7 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.21.2
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21, stripping
 #    the `-rX` at the end.
-ARG java_version=21.0.6_p7
+ARG java_version=21.0.7_p6
 ARG java_home=/usr/lib/jvm/java-21-openjdk
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
