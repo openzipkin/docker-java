@@ -57,6 +57,9 @@ ARG java_version
 ARG maven_version=3.9.14
 LABEL maven-version=$maven_version
 
+# Disable FFDHE named groups to work around https://bugs.openjdk.org/browse/JDK-8328046
+ENV MAVEN_OPTS="-Djdk.tls.namedGroups=x25519,secp256r1,secp384r1,secp521r1,x448"
+
 COPY --from=code /code/install.sh .
 RUN ./install.sh $java_version $maven_version && rm install.sh
 
