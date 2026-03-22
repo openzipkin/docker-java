@@ -6,17 +6,27 @@ name: test
 on:
   # We run tests on non-tagged pushes to master that aren't a commit made by the release plugin
   push:
-    tags: ''
-    branches: master
+    tags-ignore:
+      - '*'
+    branches: JDK1_8
     paths-ignore: '**/*.md'
   # We also run tests on pull requests targeted at the master branch.
   pull_request:
-    branches: master
+    branches: JDK1_8
     paths-ignore: '**/*.md'
 
 jobs:
   test:
+    name: test (${{ matrix.name }})
     runs-on: ubuntu-24.04  # newest available distribution, aka numbat
+    strategy:
+      fail-fast: false  # don't fail fast as some failures are LTS specific
+      matrix: # match with maven-enforcer-plugin rules in pom.xml
+        include:
+          - name: build-arg
+            version: 8.472.08
+          - name: implicit
+            version: master
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -25,4 +35,4 @@ jobs:
       # We can't cache Docker without using buildx because GH actions restricts /var/lib/docker
       # That's ok because DOCKER_PARENT_IMAGE is always ghcr.io and local anyway.
       - name: Test
-        run: build-bin/configure_test && build-bin/test
+        run: build-bin/configure_test && build-bin/test ${{ matrix.version }}
