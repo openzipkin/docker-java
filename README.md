@@ -15,10 +15,10 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-$ docker run --rm ghcr.io/openzipkin/java:17.0.14_p7 -version
-openjdk version "17.0.13" 2024-10-15
-OpenJDK Runtime Environment (build 17.0.13+11-alpine-r0)
-OpenJDK 64-Bit Server VM (build 17.0.13+11-alpine-r0, mixed mode, sharing)
+$ docker run --rm ghcr.io/openzipkin/java:17.0.18_p8 -version
+openjdk version "17.0.18" 2026-01-20
+OpenJDK Runtime Environment (build 17.0.18+8-alpine-r0)
+OpenJDK 64-Bit Server VM (build 17.0.18+8-alpine-r0, mixed mode, sharing)
 ```
 
 ## Release process
@@ -39,19 +39,19 @@ Build the [Dockerfile](Dockerfile) using the current version without the
 revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk17
 ```bash
-# Note 17.0.14_p7 not 17.0.14_p7-r2!
-./build-bin/build 17.0.14_p7
+# Note 17.0.18_p8 not 17.0.18_p8-r0!
+./build-bin/build 17.0.18_p8
 ```
 
 Next, verify the built image matches that version:
 ```bash
 $ docker run --rm openzipkin/java:test -version
-openjdk version "17.0.14" 2025-01-21
-OpenJDK Runtime Environment (build 17.0.14+7-alpine-r0)
-OpenJDK 64-Bit Server VM (build 17.0.14+7-alpine-r0, mixed mode, sharing)
+openjdk version "17.0.18" 2026-01-20
+OpenJDK Runtime Environment (build 17.0.18+8-alpine-r0)
+OpenJDK 64-Bit Server VM (build 17.0.18+8-alpine-r0, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `17.0.14_p7`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `17.0.18_p8`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
 
 ## java.lang.ClassNotFoundException

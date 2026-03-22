@@ -6,7 +6,8 @@ name: test
 on:
   # We run tests on non-tagged pushes to master that aren't a commit made by the release plugin
   push:
-    tags: ''
+    tags-ignore:
+      - '*'
     branches: JDK17
     paths-ignore: '**/*.md'
   # We also run tests on pull requests targeted at the master branch.
@@ -23,7 +24,7 @@ jobs:
       matrix: # match with maven-enforcer-plugin rules in pom.xml
         include:
           - name: build-arg
-            version: 17.0.14_p7
+            version: 17.0.18_p8
           - name: implicit
             version: master
     steps:

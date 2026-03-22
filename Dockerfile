@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.21.2
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.23.3
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -17,7 +17,7 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.21.2
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk17, stripping
 #    the `-rX` at the end.
-ARG java_version=17.0.14_p7
+ARG java_version=17.0.18_p8
 ARG java_home=/usr/lib/jvm/java-17-openjdk
 
 # We copy files from the context into a scratch container first to avoid a problem where docker and
@@ -25,7 +25,7 @@ ARG java_home=/usr/lib/jvm/java-17-openjdk
 # COPY --from= works around the issue.
 FROM scratch AS code
 
-COPY . /code/
+COPY install.sh /code/
 
 FROM $docker_parent_image AS base
 
@@ -54,8 +54,12 @@ ENTRYPOINT ["java", "-jar"]
 FROM base AS jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 ARG java_version
-ARG maven_version=3.9.9
+ARG maven_version=3.9.14
 LABEL maven-version=$maven_version
+
+# QEMU misemulates ppc64le crypto instructions, causing TLS failures (bad_record_mac).
+# Disable hardware crypto intrinsics so Maven can download from Central on all architectures.
+ENV MAVEN_OPTS="-XX:+UnlockDiagnosticVMOptions -XX:-UseAES -XX:-UseAESIntrinsics -XX:-UseAESCTRIntrinsics -XX:-UseGHASHIntrinsics -XX:-UseSHA"
 
 COPY --from=code /code/install.sh .
 RUN ./install.sh $java_version $maven_version && rm install.sh
