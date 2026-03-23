@@ -1,4 +1,4 @@
-# This builds a base JDK and JRE 11+ image that also includes a working shell
+# This can build a base JDK and JRE image for Java 11, 21 and 25 that also includes a working shell.
 #
 # You can choose to lint this via the following command:
 # docker run --rm -i hadolint/hadolint < Dockerfile
@@ -12,20 +12,13 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.23.3
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # These are overridden via build-bin/docker/docker_args, ensuring the two are
-# coherent (e.g. java 21.* has a java_home of java-21-openjdk).
+# coherent (e.g. java 25.* has a java_home of java-25-openjdk).
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21, stripping
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk25, stripping
 #    the `-rX` at the end.
-ARG java_version=21.0.10_p7
-ARG java_home=/usr/lib/jvm/java-21-openjdk
-
-# We copy files from the context into a scratch container first to avoid a problem where docker and
-# docker-compose don't share layer hashes https://github.com/docker/compose/issues/883 normally.
-# COPY --from= works around the issue.
-FROM scratch AS code
-
-COPY install.sh /code/
+ARG java_version=25.0.2_p10
+ARG java_home=/usr/lib/jvm/java-25-openjdk
 
 FROM $docker_parent_image AS base
 
@@ -33,7 +26,7 @@ FROM $docker_parent_image AS base
 #  * `docker build https://github.com/openzipkin/docker-java.git`
 #
 # When updating, also update the README
-#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk21
+#  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk25
 # This is defined in many places because Docker has no "env" script functionality unless you use
 # docker-compose: When updating, update everywhere.
 ARG java_version
@@ -61,7 +54,7 @@ LABEL maven-version=$maven_version
 # Disable hardware crypto intrinsics so Maven can download from Central on all architectures.
 ENV MAVEN_OPTS="-XX:+UnlockDiagnosticVMOptions -XX:-UseAES -XX:-UseAESIntrinsics -XX:-UseAESCTRIntrinsics -XX:-UseGHASHIntrinsics -XX:-UseSHA"
 
-COPY --from=code /code/install.sh .
+COPY install.sh .
 RUN ./install.sh $java_version $maven_version && rm install.sh
 
 # Use a temporary target to build a JRE using the JDK we just built
@@ -69,7 +62,7 @@ FROM jdk AS install
 
 WORKDIR /install
 
-# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/21/docs/api/
+# Included modules cherry-picked from https://docs.oracle.com/en/java/javase/25/docs/api/
 #
 # Note: Only include modules needed for the openzipkin/zipkin and
 # openzipkin/zipkin-slim images. It is fine for test images to use a full JRE.

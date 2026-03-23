@@ -19,7 +19,7 @@ These scripts serve a second purpose, which is to facilitate manual releases, wh
 happened many times due usually to service outages of CI providers. While tempting to use
 CI-provider specific tools, doing so can easily create a dependency where no one knows how to
 release anymore. Do not use provider-specific mechanisms to implement release flow. Instead,
-automate triggering of the scripts here. 
+automate triggering of the scripts here.
 
 The only scripts that should be modified per project are in the base directory. Those in sub
 directories, such as [docker], should not vary project to project except accident of version drift.
@@ -27,7 +27,7 @@ Intentional changes in sub directories should be relevant and tested on multiple
 they can be blindly copy/pasted.
 
 Conversely, the files in the base directory are project specific entry-points for test and deploy
-actions and are entirely appropriate to vary per project. Here's an overview: 
+actions and are entirely appropriate to vary per project. Here's an overview:
 
 ## Test
 
@@ -45,7 +45,7 @@ that license headers or other git analysis can take place.
 A simplest GitHub Actions `test.yml` runs tests after configuring them, but only on relevant event
 conditions. The name `test.yml` and job `test` allows easy references to status badges and parity of
 the scripts it uses.
- 
+
 The `on:` section obviates job creation and resource usage for irrelevant events. Notably, GitHub
 Actions includes the ability to skip documentation-only jobs.
 
@@ -88,7 +88,7 @@ the commit is documentation only or not.
 A simplest GitHub Actions `deploy.yml` deploys after logging in, but only on relevant event
 conditions. The name `deploy.yml` and job `deploy` allows easy references to status badges and
 parity of the scripts it uses.
- 
+
 The `on:` section obviates job creation and resource usage for irrelevant events. GitHub Actions
 cannot implement "master, except documentation only-commits" in the same file. Hence, deployments of
 master will happen even on README change.
@@ -99,7 +99,7 @@ explicitly defined and `on.tags` is a [glob pattern](https://docs.github.com/en/
 ```yaml
 on:
   push:
-    tags: '[0-9]+.[0-9]+.[0-9]+**'  # e.g. 8.472.08 or 21.0.10_p7
+    tags: '[0-9]+.[0-9]+.[0-9]+**'  # e.g. 8.472.08 or 25.0.2_p10
     branches: master
 
 jobs:
