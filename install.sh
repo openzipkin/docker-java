@@ -5,7 +5,7 @@
 #
 
 # Install OS packages that support most software we build
-# * openjdk21-jdk: smaller than openjdk21, which includes docs and demos
+# * openjdk25-jdk: smaller than openjdk25, which includes docs and demos
 # * binutils: needed for some node modules and jlink --strip-debug
 # * tar: BusyBox built-in tar doesn't support --strip=1
 # * wget: BusyBox built-in wget doesn't support --tries=3

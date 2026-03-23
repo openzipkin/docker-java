@@ -1,4 +1,28 @@
+*~
+#*
+*#
+.#*
+dependency-reduced-pom.xml
+.factorypath
+.classpath
+.project
+.settings/
+.springBeans
+target/
+_site/
 .idea
 *.iml
-*.ipr
-*.iws
+*.swp
+# quickstart or temporary copies of zipkin's jar
+/*.jar
+# temporary directory used by build-bin/javadoc_to_gh_pages for building gh-pages
+/javadoc-builddir
+.DS_Store
+
+# This project does not use Gradle but some developers may use it to e.g., setup a Node environment.
+# It doesn't hurt to just exclude it here.
+.gradle
+
+# This project does not use Yarn but some developers may use it to e.g., start zipkin-lens dev server.
+# It doesn't hurt to just exclude it here.
+yarn.lock
