@@ -6,7 +6,7 @@
 # docker_parent_image is the base layer of full and jre image
 #
 # Use latest version here: https://github.com/orgs/openzipkin/packages/container/package/alpine
-ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.23.3
+ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.24.4
 
 # java_version and java_home are hard-coded here to allow the following:
 #  * `docker build https://github.com/openzipkin/docker-java.git`
@@ -17,7 +17,7 @@ ARG docker_parent_image=ghcr.io/openzipkin/alpine:3.23.3
 # When updating, also update the README
 #  * Use current version from https://pkgs.alpinelinux.org/packages?name=openjdk25, stripping
 #    the `-rX` at the end.
-ARG java_version=25.0.2_p10
+ARG java_version=25.0.5.0.3_p1
 ARG java_home=/usr/lib/jvm/java-25-openjdk
 
 FROM $docker_parent_image AS base
@@ -47,7 +47,7 @@ ENTRYPOINT ["java", "-jar"]
 FROM base AS jdk
 LABEL org.opencontainers.image.description="OpenJDK on Alpine Linux"
 ARG java_version
-ARG maven_version=3.9.14
+ARG maven_version=3.9.16
 LABEL maven-version=$maven_version
 
 # QEMU misemulates ppc64le crypto instructions, causing TLS failures (bad_record_mac).

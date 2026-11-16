@@ -99,7 +99,7 @@ explicitly defined and `on.tags` is a [glob pattern](https://docs.github.com/en/
 ```yaml
 on:
   push:
-    tags: '[0-9]+.[0-9]+.[0-9]+**'  # e.g. 8.472.08 or 25.0.2_p10
+    tags: '[0-9]+.[0-9]+.[0-9]+**'  # e.g. 8.472.08 or 25.0.5.0.3_p1
     branches: master
 
 jobs:

@@ -15,7 +15,7 @@ This is an internal base layer primarily used in [zipkin](https://github.com/ope
 
 To try the image, run the `java -version` command:
 ```bash
-$ docker run --rm ghcr.io/openzipkin/java:25.0.2_p10 -version
+$ docker run --rm ghcr.io/openzipkin/java:25.0.5.0.3_p1 -version
 openjdk version "25.0.2" 2026-01-20
 OpenJDK Runtime Environment (build 25.0.2+10-alpine-r1)
 OpenJDK 64-Bit Server VM (build 25.0.2+10-alpine-r1, mixed mode, sharing)
@@ -39,8 +39,8 @@ Build the [Dockerfile](Dockerfile) using the current version without the
 revision classifier from here:
  * https://pkgs.alpinelinux.org/packages?name=openjdk25
 ```bash
-# Note 25.0.2_p10 not 25.0.2_p10-r0!
-./build-bin/build 25.0.2_p10
+# Note 25.0.5.0.3_p1 not 25.0.5.0.3_p1-r1!
+./build-bin/build 25.0.5.0.3_p1
 ```
 
 Next, verify the built image matches that version:
@@ -51,7 +51,7 @@ OpenJDK Runtime Environment (build 25.0.2+10-alpine-r1)
 OpenJDK 64-Bit Server VM (build 25.0.2+10-alpine-r1, mixed mode, sharing)
 ```
 
-To release the image, push a tag matching the arg to `build-bin/build` (ex `25.0.2_p10`).
+To release the image, push a tag matching the arg to `build-bin/build` (ex `25.0.5.0.3_p1`).
 This triggers a [GitHub Actions](https://github.com/openzipkin/docker-java/actions) job to push the image.
 
 ## java.lang.ClassNotFoundException
